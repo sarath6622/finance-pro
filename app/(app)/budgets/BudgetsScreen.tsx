@@ -10,6 +10,7 @@ import Divider from "@mui/material/Divider";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import IconButton from "@mui/material/IconButton";
+import Button from "@mui/material/Button";
 import Alert from "@mui/material/Alert";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { MoneyInput } from "@/components/MoneyInput";
@@ -142,10 +143,15 @@ function BudgetRow({ categoryName, existing, onSave, onDelete }: BudgetRowProps)
     setRollover(existing?.rollover ?? false);
   }, [existing?._id, existing?.amountPaise, existing?.rollover]);
 
-  function commit() {
-    const value = amount ?? 0;
-    if (value === 0 && !existing) return; // don't create a zero-budget row
-    if (existing && value === existing.amountPaise && rollover === existing.rollover) return;
+  const value = amount ?? 0;
+  const isZero = value === 0;
+  const dirty = existing
+    ? value !== existing.amountPaise || rollover !== existing.rollover
+    : !isZero;
+  const canSave = dirty && !(isZero && !existing);
+
+  function handleSave() {
+    if (!canSave) return;
     onSave(value, rollover);
   }
 
@@ -154,23 +160,17 @@ function BudgetRow({ categoryName, existing, onSave, onDelete }: BudgetRowProps)
       <Typography sx={{ minWidth: 200, flexGrow: 1 }}>{categoryName}</Typography>
       <MoneyInput
         valuePaise={amount}
-        onChangePaise={(v) => {
-          setAmount(v);
-        }}
+        onChangePaise={(v) => setAmount(v)}
         size="small"
         sx={{ width: 180 }}
         placeholder="No budget"
-        onBlur={commit}
       />
       <FormControlLabel
         control={
           <Checkbox
             size="small"
             checked={rollover}
-            onChange={(_e, v) => {
-              setRollover(v);
-              if (existing) onSave(existing.amountPaise, v);
-            }}
+            onChange={(_e, v) => setRollover(v)}
           />
         }
         label="Rollover"
@@ -179,6 +179,14 @@ function BudgetRow({ categoryName, existing, onSave, onDelete }: BudgetRowProps)
       <Box sx={{ minWidth: 100, textAlign: "right" }}>
         {existing && <MoneyDisplay paise={existing.amountPaise} monospace />}
       </Box>
+      <Button
+        size="small"
+        variant={dirty ? "contained" : "outlined"}
+        onClick={handleSave}
+        disabled={!canSave}
+      >
+        Save
+      </Button>
       <IconButton size="small" onClick={onDelete} disabled={!existing}>
         <DeleteOutlineIcon fontSize="small" />
       </IconButton>
