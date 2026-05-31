@@ -7,7 +7,7 @@ export interface MoneyDisplayProps {
   withSymbol?: boolean;
   colorize?: boolean;
   monospace?: boolean;
-  size?: "inherit" | "small" | "medium" | "large";
+  size?: "inherit" | "small" | "medium" | "large" | "hero";
 }
 
 const SIZE: Record<NonNullable<MoneyDisplayProps["size"]>, string | undefined> = {
@@ -15,6 +15,23 @@ const SIZE: Record<NonNullable<MoneyDisplayProps["size"]>, string | undefined> =
   small: "0.875rem",
   medium: "1rem",
   large: "1.25rem",
+  hero: "2rem",
+};
+
+const WEIGHT: Record<NonNullable<MoneyDisplayProps["size"]>, number | undefined> = {
+  inherit: undefined,
+  small: undefined,
+  medium: undefined,
+  large: 600,
+  hero: 600,
+};
+
+const LETTER_SPACING: Record<NonNullable<MoneyDisplayProps["size"]>, string | undefined> = {
+  inherit: undefined,
+  small: undefined,
+  medium: undefined,
+  large: "-0.01em",
+  hero: "-0.025em",
 };
 
 export function MoneyDisplay({
@@ -39,6 +56,8 @@ export function MoneyDisplay({
         fontFamily: monospace ? "ui-monospace, SFMono-Regular, monospace" : undefined,
         fontVariantNumeric: "tabular-nums",
         fontSize: SIZE[size],
+        fontWeight: WEIGHT[size],
+        letterSpacing: LETTER_SPACING[size],
         whiteSpace: "nowrap",
       }}
     >

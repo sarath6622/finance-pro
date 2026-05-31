@@ -111,44 +111,52 @@ export function ObligationsCard() {
             {items.map((o) => {
               const key = `${o.ruleId}-${o.expectedDate}`;
               return (
-                <Stack
-                  key={key}
-                  direction="row"
-                  alignItems="center"
-                  spacing={2}
-                  sx={{ py: 1.5 }}
-                >
-                  <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-                    <Stack direction="row" spacing={1} alignItems="center">
-                      <Typography variant="body1" noWrap>
+                <Stack key={key} spacing={1.25} sx={{ py: 2 }}>
+                  <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="flex-start"
+                    spacing={1.5}
+                  >
+                    <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+                      <Typography variant="body1" sx={{ fontWeight: 600 }}>
                         {o.ruleLabel}
                       </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {o.expectedDate}
+                      </Typography>
+                    </Box>
+                    <MoneyDisplay paise={o.amountPaise} monospace size="large" />
+                  </Stack>
+                  <Stack
+                    direction="row"
+                    spacing={1}
+                    alignItems="center"
+                    flexWrap="wrap"
+                    useFlexGap
+                  >
+                    <Chip
+                      size="small"
+                      color={statusColor(o.status)}
+                      label={statusLabel(o.status)}
+                    />
+                    {o.cycleIndex && o.totalCycles && (
                       <Chip
                         size="small"
-                        color={statusColor(o.status)}
-                        label={statusLabel(o.status)}
+                        variant="outlined"
+                        label={`${o.cycleIndex} of ${o.totalCycles}`}
                       />
-                      {o.cycleIndex && o.totalCycles && (
-                        <Chip
-                          size="small"
-                          variant="outlined"
-                          label={`${o.cycleIndex} of ${o.totalCycles}`}
-                        />
-                      )}
-                    </Stack>
-                    <Typography variant="body2" color="text.secondary">
-                      {o.expectedDate}
-                    </Typography>
-                  </Box>
-                  <MoneyDisplay paise={o.amountPaise} monospace />
-                  <Button
-                    size="small"
-                    variant="contained"
-                    disabled={busy === key}
-                    onClick={() => markPaid(o, o.status === "overdue")}
-                  >
-                    {busy === key ? "…" : "Mark paid"}
-                  </Button>
+                    )}
+                    <Box sx={{ flexGrow: 1 }} />
+                    <Button
+                      variant="contained"
+                      disabled={busy === key}
+                      onClick={() => markPaid(o, o.status === "overdue")}
+                      sx={{ minHeight: 40, px: 2 }}
+                    >
+                      {busy === key ? "…" : "Mark paid"}
+                    </Button>
+                  </Stack>
                 </Stack>
               );
             })}

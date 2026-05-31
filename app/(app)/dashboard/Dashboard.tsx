@@ -74,20 +74,14 @@ export function Dashboard() {
 
       <Card>
         <CardContent>
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
-            spacing={2}
-            sx={{ mb: 2 }}
-          >
+          <Box sx={{ mb: 2 }}>
             <Typography variant="h2">Month overview</Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="caption" color="text.secondary">
               {overview.data
                 ? `${overview.data.period.start} → ${overview.data.period.endInclusive}`
                 : ""}
             </Typography>
-          </Stack>
+          </Box>
           <Box
             sx={{
               display: "grid",
@@ -95,7 +89,7 @@ export function Dashboard() {
                 xs: "1fr 1fr",
                 md: "repeat(4, 1fr)",
               },
-              gap: 2,
+              gap: 1.5,
             }}
           >
             <BucketTile label="Income" paise={overview.data?.income ?? 0} positive />
@@ -134,21 +128,38 @@ export function Dashboard() {
 
       <Card>
         <CardContent>
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            alignItems="baseline"
-            sx={{ mb: 2 }}
-          >
+          <Box sx={{ mb: 2 }}>
             <Typography variant="h2">Budget vs actual</Typography>
             {budgets.data && (
-              <Typography variant="body2" color="text.secondary">
-                Budgeted <MoneyDisplay paise={budgets.data.totals.budgetedPaise} /> · actual{" "}
-                <MoneyDisplay paise={budgets.data.totals.actualPaise} /> · variance{" "}
-                <MoneyDisplay paise={budgets.data.totals.variancePaise} signed />
-              </Typography>
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: { xs: "repeat(3, 1fr)", sm: "auto auto auto" },
+                  gap: { xs: 1, sm: 2 },
+                  mt: 1,
+                }}
+              >
+                <Box>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
+                    Budgeted
+                  </Typography>
+                  <MoneyDisplay paise={budgets.data.totals.budgetedPaise} monospace />
+                </Box>
+                <Box>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
+                    Actual
+                  </Typography>
+                  <MoneyDisplay paise={budgets.data.totals.actualPaise} monospace />
+                </Box>
+                <Box>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
+                    Variance
+                  </Typography>
+                  <MoneyDisplay paise={budgets.data.totals.variancePaise} signed monospace />
+                </Box>
+              </Box>
             )}
-          </Stack>
+          </Box>
           {budgets.data && budgets.data.byCategory.length === 0 && (
             <Typography variant="body2" color="text.secondary">
               No budgets set for this period. Open <strong>Budgets</strong> to add some.
@@ -158,10 +169,24 @@ export function Dashboard() {
             {budgets.data?.byCategory.map((row) => {
               const pct = Math.min(100, row.utilizationPct);
               return (
-                <Stack key={row.categoryId} spacing={0.5} sx={{ py: 1.5 }}>
-                  <Stack direction="row" justifyContent="space-between" alignItems="center">
-                    <Stack direction="row" spacing={1} alignItems="center">
-                      <Typography variant="body1">{row.categoryName}</Typography>
+                <Stack key={row.categoryId} spacing={1} sx={{ py: 2 }}>
+                  <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="flex-start"
+                    spacing={1}
+                  >
+                    <Stack
+                      direction="row"
+                      spacing={0.75}
+                      alignItems="center"
+                      flexWrap="wrap"
+                      useFlexGap
+                      sx={{ minWidth: 0 }}
+                    >
+                      <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                        {row.categoryName}
+                      </Typography>
                       <Chip
                         size="small"
                         color={statusColor(row.status)}
@@ -169,7 +194,7 @@ export function Dashboard() {
                       />
                       {row.rollover && <Chip size="small" variant="outlined" label="rollover" />}
                     </Stack>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: "nowrap" }}>
                       <MoneyDisplay paise={row.actualPaise} monospace /> /{" "}
                       <MoneyDisplay paise={row.budgetPaise} monospace />
                     </Typography>
@@ -178,7 +203,7 @@ export function Dashboard() {
                     variant="determinate"
                     value={pct}
                     color={row.status === "over" ? "error" : "primary"}
-                    sx={{ height: 6, borderRadius: 3 }}
+                    sx={{ height: 8, borderRadius: 999 }}
                   />
                   <Stack direction="row" justifyContent="space-between">
                     <Typography variant="caption" color="text.secondary">
@@ -230,15 +255,29 @@ interface BucketTileProps {
 function BucketTile({ label, paise, hint, positive, negative }: BucketTileProps) {
   const colorize = positive || negative;
   return (
-    <Box sx={{ p: 1.5, borderRadius: 2, backgroundColor: "background.default" }}>
-      <Typography variant="caption" color="text.secondary">
+    <Box
+      sx={{
+        p: 1.5,
+        borderRadius: 2.5,
+        border: 1,
+        borderColor: "divider",
+        bgcolor: (t) =>
+          t.palette.mode === "dark" ? "rgba(255,255,255,0.02)" : "background.default",
+        minHeight: 88,
+      }}
+    >
+      <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
         {label}
       </Typography>
-      <Box sx={{ mt: 0.25 }}>
+      <Box sx={{ mt: 0.5 }}>
         <MoneyDisplay paise={paise} size="large" colorize={colorize} monospace />
       </Box>
       {hint && (
-        <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 0.5 }}>
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          sx={{ display: "block", mt: 0.5, fontSize: "0.7rem", lineHeight: 1.3 }}
+        >
           {hint}
         </Typography>
       )}

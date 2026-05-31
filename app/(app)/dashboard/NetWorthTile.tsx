@@ -19,26 +19,21 @@ export function NetWorthTile() {
     <Card>
       <CardActionArea component={Link} href={"/debts" as never}>
         <CardContent>
-          <Stack
-            direction={{ xs: "column", sm: "row" }}
-            justifyContent="space-between"
-            alignItems={{ sm: "center" }}
-            spacing={2}
-          >
+          <Stack spacing={2}>
             <Box>
               <Typography variant="caption" color="text.secondary">
                 Net worth · assets − liabilities
               </Typography>
-              <Box>
+              <Box sx={{ mt: 0.5 }}>
                 <MoneyDisplay
                   paise={netWorthPaise}
-                  size="large"
+                  size="hero"
                   signed
                   colorize
                   monospace
                 />
               </Box>
-              <Stack direction="row" spacing={1} sx={{ mt: 0.5 }} flexWrap="wrap" useFlexGap>
+              <Stack direction="row" spacing={1} sx={{ mt: 1.5 }} flexWrap="wrap" useFlexGap>
                 <Chip
                   size="small"
                   label={
@@ -65,35 +60,34 @@ export function NetWorthTile() {
                 )}
               </Stack>
             </Box>
-            <Stack direction="row" spacing={1.5} alignItems="center">
-              <Box textAlign="right">
-                <Typography variant="caption" color="text.secondary">
-                  cash
-                </Typography>
-                <Box>
-                  <MoneyDisplay paise={assets.cashPaise} monospace />
-                </Box>
-              </Box>
-              <Box textAlign="right">
-                <Typography variant="caption" color="text.secondary">
-                  loans
-                </Typography>
-                <Box>
-                  <MoneyDisplay paise={liabilities.loanPaise} monospace />
-                </Box>
-              </Box>
-              <Box textAlign="right">
-                <Typography variant="caption" color="text.secondary">
-                  cards
-                </Typography>
-                <Box>
-                  <MoneyDisplay paise={liabilities.cardPaise} monospace />
-                </Box>
-              </Box>
-            </Stack>
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: "repeat(3, 1fr)",
+                gap: 1,
+                pt: 1.5,
+                borderTop: 1,
+                borderColor: "divider",
+              }}
+            >
+              <MiniStat label="Cash" paise={assets.cashPaise} />
+              <MiniStat label="Loans" paise={liabilities.loanPaise} />
+              <MiniStat label="Cards" paise={liabilities.cardPaise} />
+            </Box>
           </Stack>
         </CardContent>
       </CardActionArea>
     </Card>
+  );
+}
+
+function MiniStat({ label, paise }: { label: string; paise: number }) {
+  return (
+    <Box>
+      <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
+        {label}
+      </Typography>
+      <MoneyDisplay paise={paise} monospace size="large" />
+    </Box>
   );
 }

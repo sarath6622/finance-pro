@@ -20,16 +20,16 @@ export function OwedToMeTile() {
     <Card>
       <CardActionArea component={Link} href={"/lending" as never}>
         <CardContent>
-          <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={2}>
+          <Stack spacing={1.5}>
             <Box>
               <Typography variant="caption" color="text.secondary">
                 Owed to me · {totals.counterpartyCount} people
               </Typography>
-              <Box>
-                <MoneyDisplay paise={totals.outstandingPaise} size="large" monospace />
+              <Box sx={{ mt: 0.5 }}>
+                <MoneyDisplay paise={totals.outstandingPaise} size="hero" monospace />
               </Box>
               {totals.overpaymentPaise > 0 && (
-                <Typography variant="caption" color="info.main">
+                <Typography variant="caption" color="info.main" sx={{ display: "block", mt: 0.5 }}>
                   + advances <MoneyDisplay paise={totals.overpaymentPaise} />
                 </Typography>
               )}

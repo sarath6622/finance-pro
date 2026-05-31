@@ -7,6 +7,7 @@ import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Chip from "@mui/material/Chip";
 import Alert from "@mui/material/Alert";
+import { alpha, useTheme } from "@mui/material/styles";
 import {
   ResponsiveContainer,
   LineChart,
@@ -26,7 +27,15 @@ function paiseToRupees(p: number): number {
 
 export function LiquidityTile() {
   const { data, isLoading } = useLiquidityForecast();
+  const theme = useTheme();
   if (isLoading || !data) return null;
+
+  const lineColor = theme.palette.primary.main;
+  const breachColor = theme.palette.error.main;
+  const breachFill = alpha(theme.palette.error.main, 0.18);
+  const axisColor = theme.palette.text.secondary;
+  const tooltipBg = theme.palette.background.paper;
+  const tooltipBorder = theme.palette.divider;
 
   const chartData = data.days.map((d) => ({
     date: d.date.slice(5), // "MM-DD"
@@ -49,51 +58,46 @@ export function LiquidityTile() {
     <Card>
       <CardContent>
         <Stack spacing={2}>
-          <Stack
-            direction={{ xs: "column", sm: "row" }}
-            spacing={2}
-            justifyContent="space-between"
-            alignItems={{ sm: "center" }}
-          >
-            <Box>
-              <Typography variant="caption" color="text.secondary">
-                Cash to next payday · {data.asOf} → {data.nextPayday}
+          <Box>
+            <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
+              Cash to next payday
+            </Typography>
+            <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 1 }}>
+              {data.asOf} → {data.nextPayday}
+            </Typography>
+            <Stack direction="row" spacing={1} alignItems="baseline" flexWrap="wrap" useFlexGap>
+              <MoneyDisplay paise={data.startingPaise} monospace size="hero" />
+              <Typography variant="body2" color="text.secondary">
+                →
               </Typography>
-              <Typography variant="h2">
-                <MoneyDisplay paise={data.startingPaise} monospace /> →{" "}
-                <MoneyDisplay paise={data.minPaise} monospace />{" "}
-                <Typography component="span" variant="caption" color="text.secondary">
-                  min on {data.minDate}
-                </Typography>
-              </Typography>
-              <Stack direction="row" spacing={1} sx={{ mt: 0.5 }} flexWrap="wrap" useFlexGap>
+              <MoneyDisplay paise={data.minPaise} monospace size="hero" />
+            </Stack>
+            <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 0.5 }}>
+              min on {data.minDate}
+            </Typography>
+            <Stack direction="row" spacing={1} sx={{ mt: 1.5 }} flexWrap="wrap" useFlexGap>
+              <Chip
+                size="small"
+                label={
+                  <Box component="span">
+                    Floor <MoneyDisplay paise={data.floorPaise} />
+                  </Box>
+                }
+              />
+              <Chip size="small" color={status.sev} label={status.label} />
+              {data.netChangePaise !== 0 && (
                 <Chip
                   size="small"
+                  variant="outlined"
                   label={
                     <Box component="span">
-                      Floor <MoneyDisplay paise={data.floorPaise} />
+                      Net change <MoneyDisplay paise={data.netChangePaise} signed />
                     </Box>
                   }
                 />
-                <Chip
-                  size="small"
-                  color={status.sev}
-                  label={status.label}
-                />
-                {data.netChangePaise !== 0 && (
-                  <Chip
-                    size="small"
-                    variant="outlined"
-                    label={
-                      <Box component="span">
-                        Net change <MoneyDisplay paise={data.netChangePaise} signed />
-                      </Box>
-                    }
-                  />
-                )}
-              </Stack>
-            </Box>
-          </Stack>
+              )}
+            </Stack>
+          </Box>
 
           {data.firstFloorBreachDate && (
             <Alert severity={data.firstOverdraftDate ? "error" : "warning"}>
@@ -106,12 +110,15 @@ export function LiquidityTile() {
             </Alert>
           )}
 
-          <Box sx={{ width: "100%", height: 220 }}>
+          <Box sx={{ width: "100%", height: { xs: 180, sm: 220 }, mx: -1 }}>
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 0, left: 0 }}>
-                <XAxis dataKey="date" tick={{ fontSize: 11 }} />
+              <LineChart data={chartData} margin={{ top: 5, right: 12, bottom: 0, left: 0 }}>
+                <XAxis dataKey="date" tick={{ fontSize: 11, fill: axisColor }} tickLine={false} axisLine={false} />
                 <YAxis
-                  tick={{ fontSize: 11 }}
+                  tick={{ fontSize: 11, fill: axisColor }}
+                  tickLine={false}
+                  axisLine={false}
+                  width={48}
                   tickFormatter={(v: number) =>
                     Math.abs(v) >= 100000
                       ? `₹${(v / 100000).toFixed(1)}L`
@@ -121,20 +128,31 @@ export function LiquidityTile() {
                   }
                 />
                 <Tooltip
+                  contentStyle={{
+                    background: tooltipBg,
+                    border: `1px solid ${tooltipBorder}`,
+                    borderRadius: 8,
+                    fontSize: 12,
+                  }}
                   formatter={(v: number) => `₹${v.toLocaleString("en-IN")}`}
                   labelFormatter={(l: string) => `Day ${l}`}
                 />
-                <ReferenceArea y2={floorRupees} y1={minRupees < 0 ? minRupees : 0} fill="#ffcdd2" fillOpacity={0.25} />
+                <ReferenceArea
+                  y2={floorRupees}
+                  y1={minRupees < 0 ? minRupees : 0}
+                  fill={breachFill}
+                  fillOpacity={1}
+                />
                 <ReferenceLine
                   y={floorRupees}
-                  stroke="#d32f2f"
+                  stroke={breachColor}
                   strokeDasharray="4 3"
-                  label={{ value: "Floor", fontSize: 11, fill: "#d32f2f" }}
+                  label={{ value: "Floor", fontSize: 11, fill: breachColor }}
                 />
                 <Line
                   type="monotone"
                   dataKey="rupees"
-                  stroke="#1976d2"
+                  stroke={lineColor}
                   strokeWidth={2}
                   dot={false}
                 />

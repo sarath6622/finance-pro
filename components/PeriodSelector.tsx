@@ -36,30 +36,43 @@ function shift(state: PeriodSelectorState, delta: number): PeriodSelectorState {
 export function PeriodSelector({ value, onChange, label }: PeriodSelectorProps) {
   const titlePart = label ?? `${MONTH_NAMES[value.month - 1]} ${value.year}`;
   return (
-    <Stack direction="row" alignItems="center" spacing={1.5}>
-      <IconButton size="small" onClick={() => onChange(shift(value, -1))}>
-        <ChevronLeftIcon />
-      </IconButton>
-      <Typography variant="h2" sx={{ minWidth: 220, textAlign: "center" }}>
-        {titlePart}
-        {value.mode === "pay_cycle" && (
-          <Typography variant="caption" component="span" sx={{ ml: 1, color: "text.secondary" }}>
-            cycle
-          </Typography>
-        )}
-      </Typography>
-      <IconButton size="small" onClick={() => onChange(shift(value, 1))}>
-        <ChevronRightIcon />
-      </IconButton>
+    <Stack
+      direction={{ xs: "column", sm: "row" }}
+      alignItems="center"
+      spacing={{ xs: 1, sm: 1.5 }}
+      sx={{ width: "100%", justifyContent: { sm: "flex-end" } }}
+    >
+      <Stack direction="row" alignItems="center" spacing={1}>
+        <IconButton onClick={() => onChange(shift(value, -1))} aria-label="Previous period">
+          <ChevronLeftIcon />
+        </IconButton>
+        <Typography
+          variant="h2"
+          sx={{ minWidth: { xs: 140, sm: 180 }, textAlign: "center" }}
+        >
+          {titlePart}
+          {value.mode === "pay_cycle" && (
+            <Typography variant="caption" component="span" sx={{ ml: 1, color: "text.secondary" }}>
+              cycle
+            </Typography>
+          )}
+        </Typography>
+        <IconButton onClick={() => onChange(shift(value, 1))} aria-label="Next period">
+          <ChevronRightIcon />
+        </IconButton>
+      </Stack>
       <ToggleButtonGroup
         size="small"
         exclusive
         value={value.mode}
         onChange={(_e, v) => v && onChange({ ...value, mode: v as PeriodMode })}
-        sx={{ ml: 1 }}
       >
-        <ToggleButton value="calendar">Calendar</ToggleButton>
-        <ToggleButton value="pay_cycle">Pay-cycle</ToggleButton>
+        <ToggleButton value="calendar" sx={{ px: 1.75, textTransform: "none" }}>
+          Calendar
+        </ToggleButton>
+        <ToggleButton value="pay_cycle" sx={{ px: 1.75, textTransform: "none" }}>
+          Pay-cycle
+        </ToggleButton>
       </ToggleButtonGroup>
     </Stack>
   );
