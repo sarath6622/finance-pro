@@ -6,30 +6,31 @@ export type PaletteMode = "light" | "dark";
 
 const SHARED_TYPOGRAPHY = {
   fontFamily:
-    '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-  h1: { fontSize: "1.75rem", fontWeight: 700 },
-  h2: { fontSize: "1.4rem", fontWeight: 700 },
-  h3: { fontSize: "1.15rem", fontWeight: 600 },
+    'var(--font-inter), "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+  h1: { fontSize: "1.75rem", fontWeight: 700, letterSpacing: "-0.02em" },
+  h2: { fontSize: "1.4rem", fontWeight: 700, letterSpacing: "-0.015em" },
+  h3: { fontSize: "1.15rem", fontWeight: 600, letterSpacing: "-0.01em" },
+  button: { fontWeight: 600, letterSpacing: 0 },
 } as const;
 
 function paletteFor(mode: PaletteMode) {
   if (mode === "dark") {
     return {
       mode,
-      primary: { main: "#60A5FA", dark: "#3B82F6", light: "#93C5FD" },
-      secondary: { main: "#A78BFA" },
-      success: { main: "#34D399" },
-      warning: { main: "#FBBF24" },
-      error: { main: "#F87171" },
-      background: { default: "#0B0F17", paper: "#141B25" },
-      divider: "rgba(255, 255, 255, 0.08)",
-      text: { primary: "#E5E7EB", secondary: "#9CA3AF" },
+      primary: { main: "#22C55E", dark: "#16A34A", light: "#4ADE80" },
+      secondary: { main: "#16A34A" },
+      success: { main: "#22C55E" },
+      warning: { main: "#F59E0B" },
+      error: { main: "#EF4444" },
+      background: { default: "#050505", paper: "#111111" },
+      divider: "#262626",
+      text: { primary: "#FFFFFF", secondary: "#A3A3A3", disabled: "#737373" },
     };
   }
   return {
     mode,
-    primary: { main: "#1F6FEB" },
-    secondary: { main: "#7C3AED" },
+    primary: { main: "#22C55E", dark: "#16A34A", light: "#4ADE80" },
+    secondary: { main: "#16A34A" },
     success: { main: "#16A34A" },
     warning: { main: "#D97706" },
     error: { main: "#DC2626" },
@@ -51,10 +52,10 @@ export function getTheme(mode: PaletteMode): Theme {
       MuiCard: {
         styleOverrides: {
           root: {
-            boxShadow: isDark
-              ? "0 1px 2px rgba(0,0,0,0.4)"
-              : "0 1px 3px rgba(16,24,40,0.08)",
+            boxShadow: isDark ? "none" : "0 1px 3px rgba(16,24,40,0.08)",
             backgroundImage: "none",
+            border: isDark ? "1px solid #262626" : undefined,
+            borderRadius: 20,
           },
         },
       },
