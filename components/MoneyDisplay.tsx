@@ -6,6 +6,7 @@ export interface MoneyDisplayProps {
   signed?: boolean;
   withSymbol?: boolean;
   colorize?: boolean;
+  /** @deprecated kept for API compatibility — numbers always render in the app font with tabular-nums */
   monospace?: boolean;
   size?: "inherit" | "small" | "medium" | "large" | "hero";
 }
@@ -39,7 +40,7 @@ export function MoneyDisplay({
   signed = false,
   withSymbol = true,
   colorize = false,
-  monospace = false,
+  monospace: _monospace = false,
   size = "inherit",
 }: MoneyDisplayProps) {
   const text = Money.fromPaise(paise).format({ signed, withSymbol });
@@ -53,7 +54,6 @@ export function MoneyDisplay({
       component="span"
       sx={{
         color,
-        fontFamily: monospace ? "ui-monospace, SFMono-Regular, monospace" : undefined,
         fontVariantNumeric: "tabular-nums",
         fontSize: SIZE[size],
         fontWeight: WEIGHT[size],

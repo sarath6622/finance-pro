@@ -67,9 +67,9 @@ export function Dashboard() {
         </Alert>
       )}
 
+      <NetWorthTile />
       <ObligationsCard />
       <LiquidityTile />
-      <NetWorthTile />
       <OwedToMeTile />
 
       <Card>
