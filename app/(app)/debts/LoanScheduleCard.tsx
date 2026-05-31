@@ -42,6 +42,7 @@ export function LoanScheduleCard({ loanId }: { loanId: string }) {
         Math.min(
           100,
           Math.round(
+            // eslint-disable-next-line no-restricted-syntax -- progress %, not money math
             ((data.account.openingBalancePaise - data.outstandingPaise) /
               data.account.openingBalancePaise) *
               100,

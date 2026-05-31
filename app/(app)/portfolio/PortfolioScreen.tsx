@@ -52,7 +52,7 @@ export function PortfolioScreen() {
 
       {totals && totals.holdingCount === 0 && (
         <Alert severity="info">
-          You don't have any holdings yet. Click <strong>New holding</strong> to start
+          You don&apos;t have any holdings yet. Click <strong>New holding</strong> to start
           tracking a crypto / stock / mutual-fund position. Each position has FIFO
           lots, live-or-last-known price, and feeds your net worth automatically.
         </Alert>

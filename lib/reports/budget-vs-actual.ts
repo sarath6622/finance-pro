@@ -96,6 +96,7 @@ export function budgetVsActual(input: BudgetVsActualInput): BudgetVsActual {
     if (!cat) continue;
     const actual = actualByCat.get(b.categoryId) ?? 0;
     const variance = b.amountPaise - actual;
+    // eslint-disable-next-line no-restricted-syntax -- utilization %, not money math
     const utilization = b.amountPaise > 0 ? (actual / b.amountPaise) * 100 : 0;
     byCategory.push({
       categoryId: b.categoryId,

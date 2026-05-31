@@ -23,6 +23,7 @@ export class ShareValidationError extends Error {
 export function equalShares(totalPaise: number, n: number): number[] {
   if (n <= 0) throw new ShareValidationError("n must be >= 1", "no_participants");
   if (totalPaise < 0) throw new ShareValidationError("totalPaise must be >= 0", "negative_share");
+  // eslint-disable-next-line no-restricted-syntax -- canonical split-paise-with-remainder algorithm; result is integer paise
   const base = Math.floor(totalPaise / n);
   const remainder = totalPaise - base * n;
   const out = new Array(n).fill(base) as number[];

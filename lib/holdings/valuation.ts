@@ -123,6 +123,7 @@ function bucket<H extends HoldingLite>(
     .map(([key, b]) => ({
       key,
       ...b,
+      // eslint-disable-next-line no-restricted-syntax -- ratio (0..1), not money math
       pct: totalMarket > 0 ? b.marketValuePaise / totalMarket : 0,
     }))
     .sort((a, b) => b.marketValuePaise - a.marketValuePaise);

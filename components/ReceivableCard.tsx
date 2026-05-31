@@ -43,6 +43,7 @@ export function ReceivableCard({
       : Math.min(
           100,
           Math.round(
+            // eslint-disable-next-line no-restricted-syntax -- progress %, not money math
             ((receivable.principalPaise - receivable.outstandingPaise) /
               receivable.principalPaise) *
               100,

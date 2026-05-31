@@ -78,9 +78,9 @@ export function cashFlow(input: CashFlowInput): CashFlowResult {
     txnCount += 1;
 
     // Default amounts:
-    let inflow = t.direction === "in" ? t.amountPaise : 0;
-    let outflow = t.direction === "out" ? t.amountPaise : 0;
-    let bucketKey: FlowType = t.flowType;
+    const inflow = t.direction === "in" ? t.amountPaise : 0;
+    const outflow = t.direction === "out" ? t.amountPaise : 0;
+    const bucketKey: FlowType = t.flowType;
 
     // Split bill re-attribution: owner's share counts in spend bucket; the
     // rest flows into lending_out (so it doesn't double-count as true spend).

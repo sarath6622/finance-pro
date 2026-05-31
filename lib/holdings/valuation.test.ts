@@ -108,8 +108,8 @@ describe("buildPortfolioSnapshot — R20/R21/R22", () => {
       currentUnitPricePaise: 300000,
       priceUpdatedAt: new Date().toISOString(),
     });
-    let btcF = applyBuy(btc, { date: "2026-01-01", quantity: 0.5, unitCostPaise: 100_000_000 });
-    let tcsF = applyBuy(tcs, { date: "2026-01-01", quantity: 100, unitCostPaise: 200000 });
+    const btcF = applyBuy(btc, { date: "2026-01-01", quantity: 0.5, unitCostPaise: 100_000_000 });
+    const tcsF = applyBuy(tcs, { date: "2026-01-01", quantity: 100, unitCostPaise: 200000 });
     const snap = buildPortfolioSnapshot([btcF, tcsF]);
     // BTC: 0.5 × 200_000_000 = 100_000_000; TCS: 100 × 300000 = 30_000_000
     expect(snap.totals.marketValuePaise).toBe(100_000_000 + 30_000_000);

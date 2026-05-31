@@ -76,7 +76,8 @@ export function SplitDetail({ id }: Props) {
     0,
   );
   const pct = bill.totalPaise
-    ? Math.min(100, Math.round((settledTotal / bill.totalPaise) * 100))
+    ? // eslint-disable-next-line no-restricted-syntax -- percentage display, not money math
+      Math.min(100, Math.round((settledTotal / bill.totalPaise) * 100))
     : 0;
 
   return (

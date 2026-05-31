@@ -95,7 +95,8 @@ export function SplitsScreen() {
       <Stack spacing={1.5}>
         {bills.map((b) => {
           const pct = b.totalPaise
-            ? Math.min(100, Math.round((b.settledPaise / b.totalPaise) * 100))
+            ? // eslint-disable-next-line no-restricted-syntax -- progress %, not money math
+              Math.min(100, Math.round((b.settledPaise / b.totalPaise) * 100))
             : 0;
           return (
             <Card key={b.splitBillId} variant="outlined">
@@ -159,7 +160,7 @@ export function SplitsScreen() {
             <CardContent>
               <Typography variant="body2" color="text.secondary">
                 No splits in this view yet. Convert any spend into a split from the
-                transaction's detail screen, or use the turf quick-add above.
+                transaction&apos;s detail screen, or use the turf quick-add above.
               </Typography>
             </CardContent>
           </Card>

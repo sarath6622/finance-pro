@@ -66,11 +66,14 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
     const monthlyRate = ratePA / 100 / 12;
     let remainingMonthsEst = tenureMonths;
     if (emiPaise && outstanding > 0 && monthlyRate > 0) {
+      /* eslint-disable no-restricted-syntax -- payoff-month estimate via log; result is months (int), not money */
       const n =
         Math.log(emiPaise / (emiPaise - outstanding * monthlyRate)) /
         Math.log(1 + monthlyRate);
+      /* eslint-enable no-restricted-syntax */
       remainingMonthsEst = Math.max(1, Math.ceil(n));
     } else if (outstanding > 0 && emiPaise) {
+      // eslint-disable-next-line no-restricted-syntax -- payoff months = principal / EMI; result is integer months
       remainingMonthsEst = Math.ceil(outstanding / emiPaise);
     }
     const forward = outstanding > 0

@@ -280,6 +280,7 @@ export function burnDown(input: BurnDownInput, asOf?: string): BurnDownResult {
     Math.min(totalDays - 1, dates.findIndex((d) => d >= today)),
   );
   const idealCurve = dates.map((d, i) => {
+    // eslint-disable-next-line no-restricted-syntax -- fraction (0..1), not money math
     const elapsedFraction = totalDays > 1 ? i / (totalDays - 1) : 1;
     return {
       date: d,

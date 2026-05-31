@@ -10,6 +10,7 @@ export function ageBucket(
   if (dueModel === "when_able") return "pay-when-able";
   const start = new Date(`${dateIncurred.slice(0, 10)}T00:00:00.000Z`).getTime();
   const end = new Date(`${asOf.slice(0, 10)}T00:00:00.000Z`).getTime();
+  // eslint-disable-next-line no-restricted-syntax -- day count from epoch-ms, not money
   const days = Math.floor((end - start) / MS_PER_DAY);
   if (days <= 30) return "0-30";
   if (days <= 90) return "30-90";

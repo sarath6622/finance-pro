@@ -19,10 +19,13 @@ export function emiForLoan(
   if (tenureMonths <= 0) throw new Error("tenureMonths must be > 0");
   if (annualRatePct < 0) throw new Error("annualRatePct must be >= 0");
   if (annualRatePct === 0) {
+    // eslint-disable-next-line no-restricted-syntax -- zero-rate EMI; Math.round handles paise rounding
     return Math.round(principalPaise / tenureMonths);
   }
+  // eslint-disable-next-line no-restricted-syntax -- standard EMI formula; rate math, not money
   const r = annualRatePct / 100 / 12;
   const pow = Math.pow(1 + r, tenureMonths);
+  // eslint-disable-next-line no-restricted-syntax -- standard EMI formula; Math.round handles paise rounding
   const emi = (principalPaise * r * pow) / (pow - 1);
   return Math.round(emi);
 }
