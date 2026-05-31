@@ -1,0 +1,20 @@
+{
+  "extends": ["next/core-web-vitals", "next/typescript"],
+  "rules": {
+    "@typescript-eslint/no-unused-vars": [
+      "warn",
+      { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }
+    ],
+    "no-restricted-syntax": [
+      "error",
+      {
+        "selector": "CallExpression[callee.name='parseFloat'][arguments.0.type='Literal']",
+        "message": "Do not parseFloat money strings. Use lib/money."
+      },
+      {
+        "selector": "BinaryExpression[operator='/'][left.type!='Literal'][right.type!='Literal']",
+        "message": "Avoid raw division on money values. Use Money.div for deterministic rounding."
+      }
+    ]
+  }
+}

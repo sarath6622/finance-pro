@@ -1,0 +1,122 @@
+import type {
+  AccountClassification,
+  AccountKind,
+  CounterpartyType,
+  FlowType,
+  NeedWant,
+  ReviewStatus,
+  TxnDirection,
+  TxnSource,
+} from "@/lib/schemas/common";
+
+export interface ApiAccount {
+  _id: string;
+  name: string;
+  kind: AccountKind;
+  classification: AccountClassification;
+  institution?: string;
+  last4Label?: string;
+  openingBalancePaise: number;
+  balancePaise: number;
+}
+
+export interface ApiCounterparty {
+  _id: string;
+  displayName: string;
+  type: CounterpartyType;
+  aliases: string[];
+  defaultFlowType?: FlowType;
+  defaultCategoryId?: string;
+}
+
+export interface ApiCategory {
+  _id: string;
+  name: string;
+  slug: string;
+  defaultFlowType?: FlowType;
+  sortOrder: number;
+}
+
+export interface ApiTransaction {
+  _id: string;
+  valueDate: string;
+  bookedAt: string;
+  amountPaise: number;
+  direction: TxnDirection;
+  flowType: FlowType;
+  needWant?: NeedWant;
+  categoryId?: string;
+  accountId: string;
+  counterpartyId?: string;
+  source: TxnSource;
+  description: string;
+  notes?: string;
+  parentTransactionId?: string;
+  receivableId?: string;
+  splitId?: string;
+  reimbursesTransactionId?: string;
+  reviewStatus: ReviewStatus;
+  isDeleted: boolean;
+  deletedAt?: string;
+}
+
+export interface PaginatedTransactions {
+  items: ApiTransaction[];
+  nextCursor: string | null;
+}
+
+export interface CreateTransactionInput {
+  valueDate: string;
+  bookedAt?: string;
+  amountPaise: number;
+  direction: TxnDirection;
+  flowType: FlowType;
+  needWant?: NeedWant;
+  categoryId?: string;
+  accountId: string;
+  counterpartyId?: string;
+  recurringRuleId?: string;
+  receivableId?: string;
+  dueModel?: "on_date" | "when_able" | "none";
+  expectedReturnDate?: string;
+  reminderOptIn?: boolean;
+  acceptOverpayment?: boolean;
+  description?: string;
+  notes?: string;
+}
+
+export interface PatchTransactionInput {
+  valueDate?: string;
+  amountPaise?: number;
+  direction?: TxnDirection;
+  flowType?: FlowType;
+  needWant?: NeedWant;
+  categoryId?: string;
+  accountId?: string;
+  counterpartyId?: string;
+  description?: string;
+  notes?: string;
+}
+
+export interface SplitChildBody {
+  amountPaise: number;
+  flowType: FlowType;
+  needWant?: NeedWant;
+  categoryId?: string;
+  counterpartyId?: string;
+  description?: string;
+  notes?: string;
+}
+
+export interface SplitBody {
+  children: SplitChildBody[];
+}
+
+export interface TransferBody {
+  fromAccountId: string;
+  toAccountId: string;
+  amountPaise: number;
+  valueDate: string;
+  description?: string;
+  notes?: string;
+}
