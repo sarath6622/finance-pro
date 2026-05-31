@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Dialog from "@mui/material/Dialog";
+import { ResponsiveDialog } from "@/components/ResponsiveDialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
@@ -87,7 +87,7 @@ export function SplitDialog({ parent, onClose }: SplitDialogProps) {
   }
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+    <ResponsiveDialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>
         Split transaction · target <MoneyDisplay paise={targetPaise} monospace />
       </DialogTitle>
@@ -154,6 +154,6 @@ export function SplitDialog({ parent, onClose }: SplitDialogProps) {
           {split.isPending ? "Splitting…" : "Split"}
         </Button>
       </DialogActions>
-    </Dialog>
+    </ResponsiveDialog>
   );
 }

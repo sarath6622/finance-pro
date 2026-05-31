@@ -10,11 +10,13 @@ import Button from "@mui/material/Button";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import { MoneyInput } from "@/components/MoneyInput";
+import { useThemeMode, type ThemePreference } from "@/components/ThemeModeProvider";
 import { useSettings, useUpdateSettings } from "@/lib/api/settings";
 
 export function SettingsScreen() {
   const { data: settings } = useSettings();
   const update = useUpdateSettings();
+  const { preference: themePref, resolvedMode, setPreference: setThemePref } = useThemeMode();
   const [floorPaise, setFloorPaise] = useState<number | null>(null);
   const [payday, setPayday] = useState<number>(5);
   const [reminderTime, setReminderTime] = useState<string>("21:00");
@@ -39,8 +41,30 @@ export function SettingsScreen() {
   }
 
   return (
-    <Stack spacing={3}>
+    <Stack spacing={3} sx={{ px: { xs: 2, md: 0 }, py: { xs: 2, md: 4 } }}>
       <Typography variant="h1">Settings</Typography>
+
+      <Card>
+        <CardContent>
+          <Stack spacing={1.5}>
+            <Typography variant="h2">Appearance</Typography>
+            <Typography variant="body2" color="text.secondary">
+              Currently showing the <b>{resolvedMode}</b> theme.
+            </Typography>
+            <ToggleButtonGroup
+              exclusive
+              size="small"
+              value={themePref}
+              onChange={(_, v) => v && setThemePref(v as ThemePreference)}
+              sx={{ flexWrap: "wrap" }}
+            >
+              <ToggleButton value="system">System</ToggleButton>
+              <ToggleButton value="light">Light</ToggleButton>
+              <ToggleButton value="dark">Dark</ToggleButton>
+            </ToggleButtonGroup>
+          </Stack>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardContent>
@@ -59,14 +83,19 @@ export function SettingsScreen() {
             />
 
             <Typography variant="h2">Pay cycle</Typography>
-            <Stack direction="row" spacing={2} alignItems="center">
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={2}
+              alignItems={{ xs: "stretch", sm: "center" }}
+            >
               <TextField
                 label="Payday day of month"
                 type="number"
                 inputProps={{ min: 1, max: 31 }}
                 value={payday}
                 onChange={(e) => setPayday(Number.parseInt(e.target.value, 10) || 1)}
-                sx={{ maxWidth: 200 }}
+                sx={{ maxWidth: { sm: 200 } }}
+                fullWidth
               />
               <ToggleButtonGroup
                 exclusive
@@ -83,7 +112,8 @@ export function SettingsScreen() {
               label="Reminder time (HH:MM 24-hour, ships in P10)"
               value={reminderTime}
               onChange={(e) => setReminderTime(e.target.value)}
-              sx={{ maxWidth: 240 }}
+              sx={{ maxWidth: { sm: 240 } }}
+              fullWidth
             />
 
             <Stack direction="row">

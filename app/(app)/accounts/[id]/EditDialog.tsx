@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Dialog from "@mui/material/Dialog";
+import { ResponsiveDialog } from "@/components/ResponsiveDialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
@@ -59,7 +59,7 @@ export function EditDialog({ txn, onClose }: EditDialogProps) {
   }
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
+    <ResponsiveDialog open={open} onClose={onClose} fullWidth maxWidth="xs">
       <DialogTitle>Edit transaction</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1 }}>
@@ -92,6 +92,6 @@ export function EditDialog({ txn, onClose }: EditDialogProps) {
           {update.isPending ? "Saving…" : "Save"}
         </Button>
       </DialogActions>
-    </Dialog>
+    </ResponsiveDialog>
   );
 }

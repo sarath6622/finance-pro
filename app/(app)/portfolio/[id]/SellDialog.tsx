@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Dialog from "@mui/material/Dialog";
+import { ResponsiveDialog } from "@/components/ResponsiveDialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
@@ -77,7 +77,7 @@ export function SellDialog({ open, onClose, holdingId, symbol, maxQty }: Props) 
   }
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
+    <ResponsiveDialog open={open} onClose={onClose} fullWidth maxWidth="xs">
       <DialogTitle>Sell {symbol} (have {maxQty.toLocaleString("en-IN", { maximumFractionDigits: 8 })})</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ pt: 1 }}>
@@ -122,6 +122,6 @@ export function SellDialog({ open, onClose, holdingId, symbol, maxQty }: Props) 
           {sell.isPending ? "Saving…" : "Sell"}
         </Button>
       </DialogActions>
-    </Dialog>
+    </ResponsiveDialog>
   );
 }

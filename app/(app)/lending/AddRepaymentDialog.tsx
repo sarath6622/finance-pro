@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
-import Dialog from "@mui/material/Dialog";
+import { ResponsiveDialog } from "@/components/ResponsiveDialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
@@ -85,7 +85,7 @@ export function AddRepaymentDialog({ receivable, onClose }: AddRepaymentDialogPr
   }
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
+    <ResponsiveDialog open={open} onClose={onClose} fullWidth maxWidth="xs">
       <form onSubmit={submit}>
         <DialogTitle>
           Add repayment · outstanding <MoneyDisplay paise={receivable.outstandingPaise} monospace />
@@ -142,6 +142,6 @@ export function AddRepaymentDialog({ receivable, onClose }: AddRepaymentDialogPr
           </Button>
         </DialogActions>
       </form>
-    </Dialog>
+    </ResponsiveDialog>
   );
 }

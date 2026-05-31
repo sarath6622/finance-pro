@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Dialog from "@mui/material/Dialog";
+import { ResponsiveDialog } from "@/components/ResponsiveDialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
@@ -101,7 +101,7 @@ export function TurfQuickAdd({ open, onClose, defaultCounterparties, cpName }: P
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+    <ResponsiveDialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>Turf quick-add</DialogTitle>
       <DialogContent>
         <Stack spacing={2.5} sx={{ pt: 1 }}>
@@ -187,6 +187,6 @@ export function TurfQuickAdd({ open, onClose, defaultCounterparties, cpName }: P
           {mutation.isPending ? "Creating…" : "Create turf split"}
         </Button>
       </DialogActions>
-    </Dialog>
+    </ResponsiveDialog>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
-import Dialog from "@mui/material/Dialog";
+import { ResponsiveDialog } from "@/components/ResponsiveDialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
@@ -45,7 +45,7 @@ export function WriteOffDialog({ receivable, onClose }: WriteOffDialogProps) {
   }
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
+    <ResponsiveDialog open={open} onClose={onClose} fullWidth maxWidth="xs">
       <form onSubmit={submit}>
         <DialogTitle>Write off as gift</DialogTitle>
         <DialogContent>
@@ -74,6 +74,6 @@ export function WriteOffDialog({ receivable, onClose }: WriteOffDialogProps) {
           </Button>
         </DialogActions>
       </form>
-    </Dialog>
+    </ResponsiveDialog>
   );
 }

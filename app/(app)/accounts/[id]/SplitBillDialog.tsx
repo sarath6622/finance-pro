@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Dialog from "@mui/material/Dialog";
+import { ResponsiveDialog } from "@/components/ResponsiveDialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
@@ -154,7 +154,7 @@ export function SplitBillDialog({ txn, onClose }: SplitBillDialogProps) {
     counterparties.find((c) => c._id === id)?.displayName ?? id;
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+    <ResponsiveDialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>Split bill with others</DialogTitle>
       <DialogContent>
         <Stack spacing={2.5} sx={{ pt: 1 }}>
@@ -260,6 +260,6 @@ export function SplitBillDialog({ txn, onClose }: SplitBillDialogProps) {
           {create.isPending ? "Splitting…" : "Save split"}
         </Button>
       </DialogActions>
-    </Dialog>
+    </ResponsiveDialog>
   );
 }

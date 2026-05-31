@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import Dialog from "@mui/material/Dialog";
+import { ResponsiveDialog } from "@/components/ResponsiveDialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
@@ -90,7 +90,7 @@ export function NewRuleDialog({ open, onClose }: NewRuleDialogProps) {
   }
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+    <ResponsiveDialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <form onSubmit={submit}>
         <DialogTitle>New recurring rule</DialogTitle>
         <DialogContent>
@@ -186,6 +186,6 @@ export function NewRuleDialog({ open, onClose }: NewRuleDialogProps) {
           </Button>
         </DialogActions>
       </form>
-    </Dialog>
+    </ResponsiveDialog>
   );
 }

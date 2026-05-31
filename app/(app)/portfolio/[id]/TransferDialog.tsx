@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Dialog from "@mui/material/Dialog";
+import { ResponsiveDialog } from "@/components/ResponsiveDialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
@@ -68,7 +68,7 @@ export function TransferDialog({ open, onClose, holdingId, maxQty, currentPlatfo
   }
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
+    <ResponsiveDialog open={open} onClose={onClose} fullWidth maxWidth="xs">
       <DialogTitle>Transfer from {currentPlatform}</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ pt: 1 }}>
@@ -111,6 +111,6 @@ export function TransferDialog({ open, onClose, holdingId, maxQty, currentPlatfo
           {transfer.isPending ? "Transferring…" : "Transfer"}
         </Button>
       </DialogActions>
-    </Dialog>
+    </ResponsiveDialog>
   );
 }

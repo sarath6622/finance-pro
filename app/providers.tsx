@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v14-appRouter";
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -11,12 +11,25 @@ import {
   QueryClientProvider,
 } from "@tanstack/react-query";
 import { SessionProvider } from "next-auth/react";
-import { theme } from "@/lib/theme";
+import { getTheme } from "@/lib/theme";
 import { ToastHost, toast } from "@/components/Toast";
+import { ThemeModeProvider, useThemeMode } from "@/components/ThemeModeProvider";
 
 function readErrorMessage(error: unknown): string {
   if (error instanceof Error && error.message) return error.message;
   return "Something went wrong";
+}
+
+function ThemedSubtree({ children }: { children: ReactNode }) {
+  const { resolvedMode } = useThemeMode();
+  const theme = useMemo(() => getTheme(resolvedMode), [resolvedMode]);
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      {children}
+      <ToastHost />
+    </ThemeProvider>
+  );
 }
 
 export function Providers({ children }: { children: ReactNode }) {
@@ -53,15 +66,13 @@ export function Providers({ children }: { children: ReactNode }) {
   );
   return (
     <AppRouterCacheProvider>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <SessionProvider>
-          <QueryClientProvider client={queryClient}>
-            {children}
-            <ToastHost />
-          </QueryClientProvider>
-        </SessionProvider>
-      </ThemeProvider>
+      <ThemeModeProvider>
+        <ThemedSubtree>
+          <SessionProvider>
+            <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+          </SessionProvider>
+        </ThemedSubtree>
+      </ThemeModeProvider>
     </AppRouterCacheProvider>
   );
 }
