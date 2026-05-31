@@ -7,6 +7,7 @@ import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Chip from "@mui/material/Chip";
 import Alert from "@mui/material/Alert";
+import Skeleton from "@mui/material/Skeleton";
 import { alpha, useTheme } from "@mui/material/styles";
 import {
   ResponsiveContainer,
@@ -28,7 +29,8 @@ function paiseToRupees(p: number): number {
 export function LiquidityTile() {
   const { data, isLoading } = useLiquidityForecast();
   const theme = useTheme();
-  if (isLoading || !data) return null;
+  if (isLoading) return <LiquiditySkeleton />;
+  if (!data) return null;
 
   const lineColor = theme.palette.primary.main;
   const breachColor = theme.palette.error.main;
@@ -168,6 +170,35 @@ export function LiquidityTile() {
               <MoneyDisplay paise={data.flows[0]!.signedPaise} signed />
             </Typography>
           )}
+        </Stack>
+      </CardContent>
+    </Card>
+  );
+}
+
+function LiquiditySkeleton() {
+  return (
+    <Card>
+      <CardContent>
+        <Stack spacing={2}>
+          <Box>
+            <Skeleton variant="text" width={160} height={14} />
+            <Skeleton variant="text" width={200} height={14} sx={{ mb: 1 }} />
+            <Stack direction="row" spacing={1} alignItems="baseline">
+              <Skeleton variant="text" width={120} height={44} />
+              <Skeleton variant="text" width={20} height={20} />
+              <Skeleton variant="text" width={120} height={44} />
+            </Stack>
+            <Skeleton variant="text" width={140} height={14} sx={{ mt: 0.5 }} />
+            <Stack direction="row" spacing={1} sx={{ mt: 1.5 }}>
+              <Skeleton variant="rounded" width={110} height={24} />
+              <Skeleton variant="rounded" width={140} height={24} />
+            </Stack>
+          </Box>
+          <Skeleton
+            variant="rounded"
+            sx={{ width: "100%", height: { xs: 180, sm: 220 } }}
+          />
         </Stack>
       </CardContent>
     </Card>

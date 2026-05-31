@@ -11,6 +11,7 @@ import Chip from "@mui/material/Chip";
 import Button from "@mui/material/Button";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
+import Skeleton from "@mui/material/Skeleton";
 import { MoneyDisplay } from "@/components/MoneyDisplay";
 import {
   useObligations,
@@ -95,7 +96,31 @@ export function ObligationsCard() {
               {data ? `as of ${data.asOf}` : ""}
             </Typography>
           </Stack>
-          {isLoading && <Typography variant="body2">Loading…</Typography>}
+          {isLoading && (
+            <Stack divider={<Divider />}>
+              {[0, 1, 2].map((i) => (
+                <Stack key={i} spacing={1.25} sx={{ py: 2 }}>
+                  <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="flex-start"
+                    spacing={1.5}
+                  >
+                    <Box sx={{ flexGrow: 1 }}>
+                      <Skeleton variant="text" width="60%" height={22} />
+                      <Skeleton variant="text" width={80} height={14} />
+                    </Box>
+                    <Skeleton variant="text" width={90} height={28} />
+                  </Stack>
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <Skeleton variant="rounded" width={70} height={22} />
+                    <Box sx={{ flexGrow: 1 }} />
+                    <Skeleton variant="rounded" width={100} height={36} />
+                  </Stack>
+                </Stack>
+              ))}
+            </Stack>
+          )}
           {error && <Alert severity="error">{(error as Error).message}</Alert>}
           {opError && (
             <Alert severity="error" sx={{ mb: 2 }}>

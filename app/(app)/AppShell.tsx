@@ -19,6 +19,8 @@ import Divider from "@mui/material/Divider";
 import BottomNavigation from "@mui/material/BottomNavigation";
 import BottomNavigationAction from "@mui/material/BottomNavigationAction";
 import Paper from "@mui/material/Paper";
+import Slide from "@mui/material/Slide";
+import useScrollTrigger from "@mui/material/useScrollTrigger";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
 import DashboardIcon from "@mui/icons-material/SpaceDashboardOutlined";
@@ -72,6 +74,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const hideBottomNav = useScrollTrigger({
+    disableHysteresis: false,
+    threshold: 80,
+  });
 
   return (
     <>
@@ -165,60 +171,82 @@ export function AppShell({ children }: { children: ReactNode }) {
       </Box>
 
       {!isDesktop && (
-        <Paper
-          elevation={3}
-          sx={{
-            position: "fixed",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            zIndex: (t) => t.zIndex.appBar,
-            borderTop: 1,
-            borderColor: "divider",
-            pb: "env(safe-area-inset-bottom)",
-          }}
-        >
-          <BottomNavigation
-            value={activePrimaryHref(pathname) || ""}
-            showLabels
-            sx={{ bgcolor: "transparent" }}
+        <Slide appear={false} direction="up" in={!hideBottomNav}>
+          <Paper
+            elevation={3}
+            sx={{
+              position: "fixed",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              zIndex: (t) => t.zIndex.appBar,
+              borderTop: 1,
+              borderColor: "divider",
+              pb: "env(safe-area-inset-bottom)",
+            }}
           >
-            <BottomNavigationAction
-              component={Link}
-              href={"/dashboard" as never}
-              value="/dashboard"
-              label="Home"
-              icon={<DashboardIcon />}
-            />
-            <BottomNavigationAction
-              component={Link}
-              href={"/accounts" as never}
-              value="/accounts"
-              label="Accounts"
-              icon={<AccountsIcon />}
-            />
-            <BottomNavigationAction
-              component={Link}
-              href={"/add" as never}
-              value="/add"
-              label="Add"
-              icon={<AddIcon />}
-            />
-            <BottomNavigationAction
-              component={Link}
-              href={"/lending" as never}
-              value="/lending"
-              label="Lending"
-              icon={<LendingIcon />}
-            />
-            <BottomNavigationAction
-              value="more"
-              label="More"
-              icon={<MoreIcon />}
-              onClick={() => setDrawerOpen(true)}
-            />
-          </BottomNavigation>
-        </Paper>
+            <BottomNavigation
+              value={activePrimaryHref(pathname) || ""}
+              showLabels
+              sx={{
+                bgcolor: "transparent",
+                "& .MuiBottomNavigationAction-root": {
+                  transition: (t) =>
+                    t.transitions.create(["color", "transform"], {
+                      duration: t.transitions.duration.shorter,
+                    }),
+                },
+                "& .MuiBottomNavigationAction-root .MuiSvgIcon-root": {
+                  transition: (t) =>
+                    t.transitions.create("transform", {
+                      duration: t.transitions.duration.shorter,
+                    }),
+                },
+                "& .MuiBottomNavigationAction-root.Mui-selected .MuiSvgIcon-root": {
+                  transform: "scale(1.15)",
+                },
+                "& .MuiBottomNavigationAction-root:active .MuiSvgIcon-root": {
+                  transform: "scale(0.92)",
+                },
+              }}
+            >
+              <BottomNavigationAction
+                component={Link}
+                href={"/dashboard" as never}
+                value="/dashboard"
+                label="Home"
+                icon={<DashboardIcon />}
+              />
+              <BottomNavigationAction
+                component={Link}
+                href={"/accounts" as never}
+                value="/accounts"
+                label="Accounts"
+                icon={<AccountsIcon />}
+              />
+              <BottomNavigationAction
+                component={Link}
+                href={"/add" as never}
+                value="/add"
+                label="Add"
+                icon={<AddIcon />}
+              />
+              <BottomNavigationAction
+                component={Link}
+                href={"/lending" as never}
+                value="/lending"
+                label="Lending"
+                icon={<LendingIcon />}
+              />
+              <BottomNavigationAction
+                value="more"
+                label="More"
+                icon={<MoreIcon />}
+                onClick={() => setDrawerOpen(true)}
+              />
+            </BottomNavigation>
+          </Paper>
+        </Slide>
       )}
     </>
   );

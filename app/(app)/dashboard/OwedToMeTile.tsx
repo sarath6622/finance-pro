@@ -7,12 +7,14 @@ import CardContent from "@mui/material/CardContent";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
+import Skeleton from "@mui/material/Skeleton";
 import { MoneyDisplay } from "@/components/MoneyDisplay";
 import { AgeBucketChip } from "@/components/AgeBucketChip";
 import { useReceivablesExposure } from "@/lib/api/receivables";
 
 export function OwedToMeTile() {
-  const { data } = useReceivablesExposure();
+  const { data, isLoading } = useReceivablesExposure();
+  if (isLoading) return <OwedToMeSkeleton />;
   if (!data) return null;
   const { totals } = data;
   if (totals.outstandingPaise === 0 && totals.overpaymentPaise === 0) return null;
@@ -49,6 +51,25 @@ export function OwedToMeTile() {
           </Stack>
         </CardContent>
       </CardActionArea>
+    </Card>
+  );
+}
+
+function OwedToMeSkeleton() {
+  return (
+    <Card>
+      <CardContent>
+        <Stack spacing={1.5}>
+          <Box>
+            <Skeleton variant="text" width={180} height={14} />
+            <Skeleton variant="text" width={180} height={44} sx={{ mt: 0.5 }} />
+          </Box>
+          <Stack direction="row" spacing={1}>
+            <Skeleton variant="rounded" width={90} height={24} />
+            <Skeleton variant="rounded" width={90} height={24} />
+          </Stack>
+        </Stack>
+      </CardContent>
     </Card>
   );
 }

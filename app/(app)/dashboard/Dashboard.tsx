@@ -10,6 +10,7 @@ import Chip from "@mui/material/Chip";
 import LinearProgress from "@mui/material/LinearProgress";
 import Divider from "@mui/material/Divider";
 import Alert from "@mui/material/Alert";
+import Skeleton from "@mui/material/Skeleton";
 import { MoneyDisplay } from "@/components/MoneyDisplay";
 import { PeriodSelector, type PeriodSelectorState } from "@/components/PeriodSelector";
 import { useSettings } from "@/lib/api/settings";
@@ -92,31 +93,39 @@ export function Dashboard() {
               gap: 1.5,
             }}
           >
-            <BucketTile label="Income" paise={overview.data?.income ?? 0} positive />
-            <BucketTile
-              label="True spend"
-              paise={overview.data?.spend.total ?? 0}
-              hint={
-                overview.data
-                  ? `need ${formatMini(overview.data.spend.need)} · want ${formatMini(overview.data.spend.want)}${overview.data.spend.unclassified ? ` · ?${formatMini(overview.data.spend.unclassified)}` : ""}`
-                  : undefined
-              }
-              negative
-            />
-            <BucketTile label="Family support" paise={overview.data?.familySupport ?? 0} />
-            <BucketTile label="Debt repayment" paise={overview.data?.debtRepayment ?? 0} />
-            <BucketTile label="Investment" paise={overview.data?.investment ?? 0} />
-            <BucketTile
-              label="Lending out"
-              paise={overview.data?.lendingOut ?? 0}
-              hint="receivable, not spend"
-            />
-            <BucketTile
-              label="Card settlement"
-              paise={overview.data?.cardSettlement ?? 0}
-              hint="excluded from spend"
-            />
-            <BucketTile label="Fees" paise={overview.data?.spend.fee ?? 0} />
+            {overview.isLoading
+              ? Array.from({ length: 8 }).map((_, i) => (
+                  <BucketTileSkeleton key={i} />
+                ))
+              : (
+                <>
+                  <BucketTile label="Income" paise={overview.data?.income ?? 0} positive />
+                  <BucketTile
+                    label="True spend"
+                    paise={overview.data?.spend.total ?? 0}
+                    hint={
+                      overview.data
+                        ? `need ${formatMini(overview.data.spend.need)} · want ${formatMini(overview.data.spend.want)}${overview.data.spend.unclassified ? ` · ?${formatMini(overview.data.spend.unclassified)}` : ""}`
+                        : undefined
+                    }
+                    negative
+                  />
+                  <BucketTile label="Family support" paise={overview.data?.familySupport ?? 0} />
+                  <BucketTile label="Debt repayment" paise={overview.data?.debtRepayment ?? 0} />
+                  <BucketTile label="Investment" paise={overview.data?.investment ?? 0} />
+                  <BucketTile
+                    label="Lending out"
+                    paise={overview.data?.lendingOut ?? 0}
+                    hint="receivable, not spend"
+                  />
+                  <BucketTile
+                    label="Card settlement"
+                    paise={overview.data?.cardSettlement ?? 0}
+                    hint="excluded from spend"
+                  />
+                  <BucketTile label="Fees" paise={overview.data?.spend.fee ?? 0} />
+                </>
+              )}
           </Box>
           {overview.data && (
             <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 2 }}>
@@ -160,6 +169,23 @@ export function Dashboard() {
               </Box>
             )}
           </Box>
+          {budgets.isLoading && (
+            <Stack divider={<Divider />}>
+              {[0, 1, 2, 3].map((i) => (
+                <Stack key={i} spacing={1} sx={{ py: 2 }}>
+                  <Stack direction="row" justifyContent="space-between">
+                    <Skeleton variant="text" width={140} height={24} />
+                    <Skeleton variant="text" width={120} height={20} />
+                  </Stack>
+                  <Skeleton variant="rounded" height={8} sx={{ borderRadius: 999 }} />
+                  <Stack direction="row" justifyContent="space-between">
+                    <Skeleton variant="text" width={70} height={14} />
+                    <Skeleton variant="text" width={80} height={14} />
+                  </Stack>
+                </Stack>
+              ))}
+            </Stack>
+          )}
           {budgets.data && budgets.data.byCategory.length === 0 && (
             <Typography variant="body2" color="text.secondary">
               No budgets set for this period. Open <strong>Budgets</strong> to add some.
@@ -250,6 +276,25 @@ interface BucketTileProps {
   hint?: string;
   positive?: boolean;
   negative?: boolean;
+}
+
+function BucketTileSkeleton() {
+  return (
+    <Box
+      sx={{
+        p: 1.5,
+        borderRadius: 2.5,
+        border: 1,
+        borderColor: "divider",
+        bgcolor: (t) =>
+          t.palette.mode === "dark" ? "rgba(255,255,255,0.02)" : "background.default",
+        minHeight: 88,
+      }}
+    >
+      <Skeleton variant="text" width={70} height={14} />
+      <Skeleton variant="text" width={100} height={32} sx={{ mt: 0.5 }} />
+    </Box>
+  );
 }
 
 function BucketTile({ label, paise, hint, positive, negative }: BucketTileProps) {
