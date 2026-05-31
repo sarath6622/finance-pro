@@ -3,13 +3,14 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "./client";
 import { invalidateLedger } from "./invalidate";
+import type { SyncFields } from "./types";
 
 export type ReceivableKind = "cash_loan" | "split_iou";
 export type ReceivableStatus = "open" | "partial" | "closed" | "written_off";
 export type AgeBucket = "0-30" | "30-90" | "90+" | "pay-when-able";
 export type DueModel = "on_date" | "when_able" | "none";
 
-export interface ApiReceivable {
+export interface ApiReceivable extends SyncFields {
   _id: string;
   counterpartyId: string;
   kind: ReceivableKind;

@@ -3,9 +3,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "./client";
 import { invalidateLedger } from "./invalidate";
+import type { SyncFields } from "./types";
 import type { FlowType } from "@/lib/schemas/common";
 
-export interface ApiRecurringRule {
+export interface ApiRecurringRule extends SyncFields {
   _id: string;
   label: string;
   accountId: string;

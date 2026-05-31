@@ -8,6 +8,7 @@ import {
   receivableKind,
   receivableStatus,
   softDeleteFields,
+  syncFields,
 } from "./common";
 
 export const receivableSchema = z
@@ -28,6 +29,7 @@ export const receivableSchema = z
     createdAt: isoDateTime.optional(),
     closedAt: isoDateTime.optional(),
   })
-  .merge(softDeleteFields);
+  .merge(softDeleteFields)
+  .merge(syncFields);
 
 export type Receivable = z.infer<typeof receivableSchema>;

@@ -1,4 +1,5 @@
 import mongoose, { Schema, type InferSchemaType, type Model } from "mongoose";
+import { applyClientEntityIdIndex, syncFields } from "./syncFields";
 
 const RecurringRuleSchema = new Schema(
   {
@@ -16,10 +17,12 @@ const RecurringRuleSchema = new Schema(
     autoGenerate: { type: Boolean, default: true },
     arrearsPolicy: { type: String, enum: ["accumulate", "skip"], default: "accumulate" },
     status: { type: String, enum: ["active", "paused", "ended"], default: "active" },
+    ...syncFields,
   },
   { timestamps: true, collection: "recurring_rules" },
 );
 
+applyClientEntityIdIndex(RecurringRuleSchema);
 RecurringRuleSchema.index({ status: 1, startDate: 1 });
 
 export type RecurringRuleDoc = InferSchemaType<typeof RecurringRuleSchema>;

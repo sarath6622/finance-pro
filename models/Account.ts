@@ -1,4 +1,5 @@
 import mongoose, { Schema, type InferSchemaType, type Model } from "mongoose";
+import { applyClientEntityIdIndex, syncFields } from "./syncFields";
 
 const AccountSchema = new Schema(
   {
@@ -29,10 +30,12 @@ const AccountSchema = new Schema(
     },
     isActive: { type: Boolean, default: true },
     archivedAt: { type: Date },
+    ...syncFields,
   },
   { timestamps: true, collection: "accounts" },
 );
 
+applyClientEntityIdIndex(AccountSchema);
 AccountSchema.index({ isActive: 1, kind: 1 });
 
 export type AccountDoc = InferSchemaType<typeof AccountSchema>;

@@ -11,6 +11,8 @@ export interface ApiSettings {
   baseCurrency: "INR";
   payCycleMode: "calendar" | "pay_cycle";
   includePassthroughInReports: boolean;
+  version: number;
+  bookedAt: string;
 }
 
 export const settingsKeys = { current: ["settings"] as const };

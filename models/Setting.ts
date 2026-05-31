@@ -1,4 +1,5 @@
 import mongoose, { Schema, type InferSchemaType, type Model } from "mongoose";
+import { syncFieldsSingleton } from "./syncFields";
 
 const SettingSchema = new Schema(
   {
@@ -9,6 +10,7 @@ const SettingSchema = new Schema(
     baseCurrency: { type: String, required: true, enum: ["INR"], default: "INR" },
     payCycleMode: { type: String, enum: ["calendar", "pay_cycle"], default: "pay_cycle" },
     includePassthroughInReports: { type: Boolean, default: false },
+    ...syncFieldsSingleton,
   },
   { timestamps: true, collection: "settings" },
 );

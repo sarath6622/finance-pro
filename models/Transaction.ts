@@ -1,4 +1,5 @@
 import mongoose, { Schema, type InferSchemaType, type Model } from "mongoose";
+import { applyClientEntityIdIndex, syncFields } from "./syncFields";
 
 const EditEntrySchema = new Schema(
   {
@@ -13,7 +14,6 @@ const EditEntrySchema = new Schema(
 const TransactionSchema = new Schema(
   {
     valueDate: { type: String, required: true, match: /^\d{4}-\d{2}-\d{2}$/ },
-    bookedAt: { type: Date, required: true },
     amountPaise: { type: Number, required: true, min: 1 },
     direction: { type: String, required: true, enum: ["out", "in"] },
     flowType: {
@@ -64,10 +64,12 @@ const TransactionSchema = new Schema(
     isDeleted: { type: Boolean, default: false },
     deletedAt: { type: Date },
     editHistory: { type: [EditEntrySchema], default: [] },
+    ...syncFields,
   },
   { timestamps: true, collection: "transactions" },
 );
 
+applyClientEntityIdIndex(TransactionSchema);
 TransactionSchema.index({ valueDate: -1, isDeleted: 1 });
 TransactionSchema.index({ accountId: 1, valueDate: -1 });
 TransactionSchema.index({ flowType: 1, valueDate: -1 });

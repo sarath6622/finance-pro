@@ -1,4 +1,5 @@
 import mongoose, { Schema, type InferSchemaType, type Model } from "mongoose";
+import { applyClientEntityIdIndex, syncFields } from "./syncFields";
 
 const HoldingLotSchema = new Schema(
   {
@@ -41,10 +42,12 @@ const HoldingSchema = new Schema(
     isActive: { type: Boolean, default: true },
     isDeleted: { type: Boolean, default: false },
     deletedAt: { type: Date },
+    ...syncFields,
   },
   { timestamps: true, collection: "holdings" },
 );
 
+applyClientEntityIdIndex(HoldingSchema);
 HoldingSchema.index({ assetType: 1, platform: 1 });
 HoldingSchema.index({ symbol: 1, platform: 1 });
 HoldingSchema.index({ isDeleted: 1 });

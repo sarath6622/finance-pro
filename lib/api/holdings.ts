@@ -3,11 +3,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "./client";
 import { invalidateLedger } from "./invalidate";
+import type { SyncFields } from "./types";
 
 export type AssetType = "crypto" | "stock" | "mutual_fund";
 export type PriceCurrency = "INR" | "USD";
 
-export interface ApiHolding {
+export interface ApiHolding extends SyncFields {
   _id: string;
   assetType: AssetType;
   symbol: string;

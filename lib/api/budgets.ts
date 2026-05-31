@@ -3,8 +3,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "./client";
 import { invalidateLedger } from "./invalidate";
+import type { SyncFields } from "./types";
 
-export interface ApiBudget {
+export interface ApiBudget extends SyncFields {
   _id: string;
   categoryId: string;
   month: string;

@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "./client";
 import { invalidateLedger } from "./invalidate";
+import type { SyncFields } from "./types";
 
 export type SplitStatus = "open" | "partial" | "settled";
 
@@ -17,7 +18,7 @@ export interface ApiSplitParticipant {
   receivableStatus?: "open" | "partial" | "closed" | "written_off";
 }
 
-export interface ApiSplitBill {
+export interface ApiSplitBill extends SyncFields {
   _id: string;
   sourceTransactionId: string;
   totalPaise: number;

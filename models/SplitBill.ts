@@ -1,4 +1,5 @@
 import mongoose, { Schema, type InferSchemaType, type Model } from "mongoose";
+import { applyClientEntityIdIndex, syncFields } from "./syncFields";
 
 const EditEntrySchema = new Schema(
   {
@@ -47,10 +48,12 @@ const SplitBillSchema = new Schema(
     isDeleted: { type: Boolean, default: false },
     deletedAt: { type: Date },
     editHistory: { type: [EditEntrySchema], default: [] },
+    ...syncFields,
   },
   { timestamps: true, collection: "split_bills" },
 );
 
+applyClientEntityIdIndex(SplitBillSchema);
 SplitBillSchema.index({ status: 1, createdAt: -1 });
 SplitBillSchema.index({ "participants.counterpartyId": 1 });
 SplitBillSchema.index({ isDeleted: 1 });

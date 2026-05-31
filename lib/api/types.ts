@@ -9,7 +9,14 @@ import type {
   TxnSource,
 } from "@/lib/schemas/common";
 
-export interface ApiAccount {
+/** Fields every sync-eligible entity gets (see P10 plan). */
+export interface SyncFields {
+  version: number;
+  bookedAt: string;
+  clientEntityId?: string;
+}
+
+export interface ApiAccount extends SyncFields {
   _id: string;
   name: string;
   kind: AccountKind;
@@ -20,7 +27,7 @@ export interface ApiAccount {
   balancePaise: number;
 }
 
-export interface ApiCounterparty {
+export interface ApiCounterparty extends SyncFields {
   _id: string;
   displayName: string;
   type: CounterpartyType;
@@ -29,7 +36,7 @@ export interface ApiCounterparty {
   defaultCategoryId?: string;
 }
 
-export interface ApiCategory {
+export interface ApiCategory extends SyncFields {
   _id: string;
   name: string;
   slug: string;
@@ -37,10 +44,9 @@ export interface ApiCategory {
   sortOrder: number;
 }
 
-export interface ApiTransaction {
+export interface ApiTransaction extends SyncFields {
   _id: string;
   valueDate: string;
-  bookedAt: string;
   amountPaise: number;
   direction: TxnDirection;
   flowType: FlowType;

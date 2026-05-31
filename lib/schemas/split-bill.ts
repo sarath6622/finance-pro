@@ -5,6 +5,7 @@ import {
   softDeleteFields,
   splitBillStatus,
   splitParticipantStatus,
+  syncFields,
   dueModel,
 } from "./common";
 
@@ -29,7 +30,8 @@ export const splitBillSchema = z
     status: splitBillStatus.default("open"),
     notes: z.string().max(2000).optional(),
   })
-  .merge(softDeleteFields);
+  .merge(softDeleteFields)
+  .merge(syncFields);
 
 export type SplitParticipant = z.infer<typeof splitParticipantSchema>;
 export type SplitBill = z.infer<typeof splitBillSchema>;

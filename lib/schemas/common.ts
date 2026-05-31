@@ -79,6 +79,19 @@ export const softDeleteFields = z.object({
   editHistory: z.array(editEntry).default([]),
 });
 
+export const clientEntityId = z.string().uuid();
+
+export const syncFields = z.object({
+  version: z.number().int().nonnegative().default(0),
+  bookedAt: isoDateTime.default(() => new Date().toISOString()),
+  clientEntityId: clientEntityId.optional(),
+});
+
+export const syncFieldsSingleton = z.object({
+  version: z.number().int().nonnegative().default(0),
+  bookedAt: isoDateTime.default(() => new Date().toISOString()),
+});
+
 export const recurringFrequency = z.enum(["monthly", "weekly", "custom"]);
 export const arrearsPolicy = z.enum(["accumulate", "skip"]);
 export const recurringStatus = z.enum(["active", "paused", "ended"]);

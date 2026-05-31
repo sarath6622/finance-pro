@@ -1,4 +1,5 @@
 import mongoose, { Schema, type InferSchemaType, type Model } from "mongoose";
+import { applyClientEntityIdIndex, syncFields } from "./syncFields";
 
 const CounterpartySchema = new Schema(
   {
@@ -12,10 +13,12 @@ const CounterpartySchema = new Schema(
     defaultCategoryId: { type: Schema.Types.ObjectId, ref: "Category" },
     defaultFlowType: { type: String },
     notes: { type: String, maxlength: 1000 },
+    ...syncFields,
   },
   { timestamps: true, collection: "counterparties" },
 );
 
+applyClientEntityIdIndex(CounterpartySchema);
 CounterpartySchema.index({ displayName: 1 });
 CounterpartySchema.index({ aliases: 1 });
 

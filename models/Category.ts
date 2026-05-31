@@ -1,4 +1,5 @@
 import mongoose, { Schema, type InferSchemaType, type Model } from "mongoose";
+import { applyClientEntityIdIndex, syncFields } from "./syncFields";
 
 const CategorySchema = new Schema(
   {
@@ -10,10 +11,12 @@ const CategorySchema = new Schema(
     color: { type: String, match: /^#[0-9a-fA-F]{6}$/ },
     isActive: { type: Boolean, default: true },
     sortOrder: { type: Number, default: 0 },
+    ...syncFields,
   },
   { timestamps: true, collection: "categories" },
 );
 
+applyClientEntityIdIndex(CategorySchema);
 CategorySchema.index({ parentId: 1, sortOrder: 1 });
 
 export type CategoryDoc = InferSchemaType<typeof CategorySchema>;

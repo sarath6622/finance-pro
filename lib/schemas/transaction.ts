@@ -8,6 +8,7 @@ import {
   paiseAmount,
   reviewStatus,
   softDeleteFields,
+  syncFields,
   txnDirection,
   txnSource,
 } from "./common";
@@ -39,6 +40,7 @@ export const transactionSchema = z
     importHash: z.string().max(128).optional(),
     reviewStatus: reviewStatus.default("confirmed"),
   })
-  .merge(softDeleteFields);
+  .merge(softDeleteFields)
+  .merge(syncFields);
 
 export type Transaction = z.infer<typeof transactionSchema>;

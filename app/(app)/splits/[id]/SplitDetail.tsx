@@ -49,6 +49,8 @@ function participantToReceivable(
     dueModel: p.dueModel,
     status: (p.receivableStatus ?? p.status) as ApiReceivable["status"],
     ageBucket: p.dueModel === "when_able" ? "pay-when-able" : "0-30",
+    version: 0,
+    bookedAt: bill.bookedAt ?? bill.createdAt ?? new Date().toISOString(),
   };
 }
 
