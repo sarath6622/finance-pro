@@ -21,6 +21,7 @@ import type {
   BuyInputDto,
   CorporateActionInputDto,
   CreateHoldingInput,
+  ImportLotInputDto,
   PriceUpdateInputDto,
   SellInputDto,
   TransferInputDto,
@@ -162,6 +163,31 @@ export async function createBuy(
     await TransactionModel.findByIdAndDelete(txn._id);
     throw err;
   }
+}
+
+/* ------------------------------------------------------------------ */
+/* importLot: add a lot without an offsetting Transaction               */
+/* Used to backfill pre-existing positions where the buy happened       */
+/* before the user started using this tracker.                          */
+/* ------------------------------------------------------------------ */
+
+export async function importLot(
+  holdingId: string,
+  input: ImportLotInputDto,
+): Promise<{ holdingId: string; newQuantity: number }> {
+  const doc = await HoldingModel.findById(holdingId).lean();
+  if (!doc) throw notFound("Holding not found");
+  if ((doc as { isDeleted?: boolean }).isDeleted) {
+    throw conflict("Holding is soft-deleted");
+  }
+  const lite = docToLite(doc as Record<string, unknown>);
+  const next = applyBuy(lite, {
+    date: input.date,
+    quantity: input.quantity,
+    unitCostPaise: input.unitCostPaise,
+  });
+  await HoldingModel.findByIdAndUpdate(doc._id, { $set: liteToDocPatch(next) });
+  return { holdingId: String(doc._id), newQuantity: next.quantity };
 }
 
 /* ------------------------------------------------------------------ */

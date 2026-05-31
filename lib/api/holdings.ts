@@ -172,6 +172,26 @@ export function useBuyHolding(id: string) {
   });
 }
 
+export interface ImportLotBody {
+  date: string;
+  quantity: number;
+  unitCostPaise: number;
+  notes?: string;
+}
+
+export function useImportLot(id: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    meta: { successMessage: "Position imported" },
+    mutationFn: (body: ImportLotBody) =>
+      api<{ holdingId: string; newQuantity: number }>(
+        `/api/holdings/${id}/import-lot`,
+        { method: "POST", body: JSON.stringify(body) },
+      ),
+    onSuccess: () => invalidateLedger(qc),
+  });
+}
+
 export interface SellBody {
   date: string;
   quantity: number;

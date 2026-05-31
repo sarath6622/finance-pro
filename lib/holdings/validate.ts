@@ -45,6 +45,13 @@ export const corporateActionInput = z.object({
   at: isoDateTime.optional(),
 });
 
+export const importLotInput = z.object({
+  date: isoDate,
+  quantity: z.number().positive(),
+  unitCostPaise: paiseAmount.refine((n) => n >= 0, "unitCostPaise must be >= 0"),
+  notes: z.string().max(2000).optional(),
+});
+
 export const transferInput = z.object({
   date: isoDate,
   quantity: z.number().positive(),
@@ -65,3 +72,4 @@ export type SellInputDto = z.infer<typeof sellInput>;
 export type CorporateActionInputDto = z.infer<typeof corporateActionInput>;
 export type TransferInputDto = z.infer<typeof transferInput>;
 export type PriceUpdateInputDto = z.infer<typeof priceUpdateInput>;
+export type ImportLotInputDto = z.infer<typeof importLotInput>;

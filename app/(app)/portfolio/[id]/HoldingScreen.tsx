@@ -19,6 +19,7 @@ import TableCell from "@mui/material/TableCell";
 import { MoneyDisplay } from "@/components/MoneyDisplay";
 import { useDeleteHolding, useHolding } from "@/lib/api/holdings";
 import { BuyDialog } from "./BuyDialog";
+import { ImportLotDialog } from "./ImportLotDialog";
 import { SellDialog } from "./SellDialog";
 import { PriceDialog } from "./PriceDialog";
 import { TransferDialog } from "./TransferDialog";
@@ -28,6 +29,7 @@ export function HoldingScreen({ id }: { id: string }) {
   const { data, isLoading, error } = useHolding(id);
   const del = useDeleteHolding(id);
   const [buyOpen, setBuyOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const [sellOpen, setSellOpen] = useState(false);
   const [priceOpen, setPriceOpen] = useState(false);
   const [transferOpen, setTransferOpen] = useState(false);
@@ -94,6 +96,9 @@ export function HoldingScreen({ id }: { id: string }) {
               <Button size="small" variant="contained" onClick={() => setBuyOpen(true)}>
                 Buy
               </Button>
+              <Button size="small" variant="outlined" onClick={() => setImportOpen(true)}>
+                Import existing
+              </Button>
               <Button
                 size="small"
                 variant="outlined"
@@ -128,7 +133,9 @@ export function HoldingScreen({ id }: { id: string }) {
           </Typography>
           {holding.lots.length === 0 && (
             <Typography variant="body2" color="text.secondary">
-              No lots yet. Click <strong>Buy</strong> to add one.
+              No lots yet. Click <strong>Buy</strong> to record a new purchase, or{" "}
+              <strong>Import existing</strong> to backfill a position you already
+              own.
             </Typography>
           )}
           {holding.lots.length > 0 && (
@@ -252,6 +259,7 @@ export function HoldingScreen({ id }: { id: string }) {
       )}
 
       <BuyDialog open={buyOpen} onClose={() => setBuyOpen(false)} holdingId={id} symbol={holding.symbol} />
+      <ImportLotDialog open={importOpen} onClose={() => setImportOpen(false)} holdingId={id} symbol={holding.symbol} />
       <SellDialog open={sellOpen} onClose={() => setSellOpen(false)} holdingId={id} symbol={holding.symbol} maxQty={holding.quantity} />
       <PriceDialog open={priceOpen} onClose={() => setPriceOpen(false)} holdingId={id} priceCurrency={holding.priceCurrency} />
       <TransferDialog open={transferOpen} onClose={() => setTransferOpen(false)} holdingId={id} maxQty={holding.quantity} currentPlatform={holding.platform} />
