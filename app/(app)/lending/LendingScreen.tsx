@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
@@ -9,16 +9,19 @@ import CardActionArea from "@mui/material/CardActionArea";
 import CardContent from "@mui/material/CardContent";
 import Box from "@mui/material/Box";
 import Alert from "@mui/material/Alert";
+import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
 import Divider from "@mui/material/Divider";
 import { MoneyDisplay } from "@/components/MoneyDisplay";
 import { AgeBucketChip } from "@/components/AgeBucketChip";
 import { useReceivablesExposure } from "@/lib/api/receivables";
 import { useCounterparties } from "@/lib/api/counterparties";
+import { ImportReceivableDialog } from "./ImportReceivableDialog";
 
 export function LendingScreen() {
   const { data: exposure, isLoading, error } = useReceivablesExposure();
   const { data: counterparties = [] } = useCounterparties();
+  const [importOpen, setImportOpen] = useState(false);
   const cpName = useMemo(
     () => (id: string) => counterparties.find((c) => c._id === id)?.displayName ?? id,
     [counterparties],
@@ -26,7 +29,17 @@ export function LendingScreen() {
 
   return (
     <Stack spacing={3}>
-      <Typography variant="h1">Owed to me</Typography>
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="space-between"
+        spacing={2}
+      >
+        <Typography variant="h1">Owed to me</Typography>
+        <Button size="small" variant="outlined" onClick={() => setImportOpen(true)}>
+          Import existing
+        </Button>
+      </Stack>
       {error && <Alert severity="error">{(error as Error).message}</Alert>}
       {isLoading && <Typography variant="body2">Loading…</Typography>}
 
@@ -107,8 +120,10 @@ export function LendingScreen() {
           <Card variant="outlined">
             <CardContent>
               <Typography variant="body2" color="text.secondary">
-                Nobody owes you anything right now. Lend out from the <strong>Add</strong> screen
-                (pick flow type <strong>Lend</strong>).
+                Nobody owes you anything right now. For new lend-outs, use the{" "}
+                <strong>Add</strong> screen (flow type <strong>Lend</strong>). For a
+                loan that pre-dates this tracker, click <strong>Import existing</strong>{" "}
+                above — it records the IOU without debiting your bank.
               </Typography>
             </CardContent>
           </Card>
@@ -119,6 +134,7 @@ export function LendingScreen() {
         Pay-when-able loans never auto-write-off — they stay visible until you settle or write
         them off manually.
       </Typography>
+      <ImportReceivableDialog open={importOpen} onClose={() => setImportOpen(false)} />
     </Stack>
   );
 }

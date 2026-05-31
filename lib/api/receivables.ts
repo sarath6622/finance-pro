@@ -139,6 +139,28 @@ export function useReceivablesByCounterparty(counterpartyId: string) {
   });
 }
 
+export interface ImportReceivableBody {
+  counterpartyId: string;
+  principalPaise: number;
+  dateIncurred: string;
+  dueModel: DueModel;
+  expectedReturnDate?: string;
+  notes?: string;
+}
+
+export function useImportReceivable() {
+  const qc = useQueryClient();
+  return useMutation({
+    meta: { successMessage: "Receivable imported" },
+    mutationFn: (body: ImportReceivableBody) =>
+      api<{ receivableId: string }>(`/api/receivables/import`, {
+        method: "POST",
+        body: JSON.stringify(body),
+      }),
+    onSuccess: () => invalidateLedger(qc),
+  });
+}
+
 export interface WriteOffBody {
   notes?: string;
   categoryId?: string;

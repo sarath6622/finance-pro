@@ -2,6 +2,7 @@ import { Types } from "mongoose";
 import { ReceivableModel, TransactionModel } from "@/models";
 import { ApiError, conflict, notFound, validation } from "@/lib/http/errors";
 import { applyRepayment, recomputeReceivableState } from "./apply-repayment";
+import type { ImportReceivableInput } from "./validate";
 import type { ReceivableLite, ReceivableNext, RepaymentLite } from "./types";
 
 interface LendingOutInput {
@@ -70,6 +71,36 @@ export async function createLendingOutWithReceivable(input: LendingOutInput): Pr
     await TransactionModel.findByIdAndDelete(txn._id);
     throw err;
   }
+}
+
+/**
+ * Import a pre-existing cash-loan receivable without a backing lending_out
+ * Transaction. Use this when the principal was paid out before the user
+ * started using the tracker — recording the IOU without re-debiting the
+ * bank account. Repayments later still create normal lending_repaid
+ * transactions, which correctly do hit the bank when the money comes back.
+ */
+export async function importExistingReceivable(
+  input: ImportReceivableInput,
+): Promise<{ receivableId: string }> {
+  if (input.dueModel === "on_date" && !input.expectedReturnDate) {
+    throw validation("expectedReturnDate is required when dueModel is on_date");
+  }
+  const rec = await ReceivableModel.create({
+    counterpartyId: input.counterpartyId,
+    kind: "cash_loan",
+    principalPaise: input.principalPaise,
+    dateIncurred: input.dateIncurred,
+    repaymentTxnIds: [],
+    status: "open",
+    dueModel: input.dueModel,
+    ...(input.expectedReturnDate ? { expectedReturnDate: input.expectedReturnDate } : {}),
+    reminderOptIn: false,
+    ...(input.notes ? { notes: input.notes } : {}),
+    isDeleted: false,
+    editHistory: [],
+  });
+  return { receivableId: String(rec._id) };
 }
 
 interface RepaymentInput {
