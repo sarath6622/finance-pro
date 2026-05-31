@@ -12,6 +12,9 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import { MoneyInput } from "@/components/MoneyInput";
 import { useThemeMode, type ThemePreference } from "@/components/ThemeModeProvider";
 import { useSettings, useUpdateSettings } from "@/lib/api/settings";
+import { AccountsSection } from "./AccountsSection";
+import { CounterpartiesSection } from "./CounterpartiesSection";
+import { CategoriesSection } from "./CategoriesSection";
 
 export function SettingsScreen() {
   const { data: settings } = useSettings();
@@ -41,7 +44,17 @@ export function SettingsScreen() {
   }
 
   return (
-    <Stack spacing={3} sx={{ px: { xs: 2, md: 0 }, py: { xs: 2, md: 4 } }}>
+    <Stack
+      spacing={1.5}
+      sx={{
+        px: { xs: 2, md: 0 },
+        py: { xs: 1.5, md: 3 },
+        "& .MuiCardContent-root": {
+          p: 1.5,
+          "&:last-child": { pb: 1.5 },
+        },
+      }}
+    >
       <Typography variant="h1">Settings</Typography>
 
       <Card>
@@ -128,6 +141,10 @@ export function SettingsScreen() {
           </Stack>
         </CardContent>
       </Card>
+
+      <AccountsSection />
+      <CounterpartiesSection />
+      <CategoriesSection />
     </Stack>
   );
 }

@@ -1,5 +1,11 @@
 import { z } from "zod";
-import { counterpartyType, flowType, objectIdString, syncFields } from "./common";
+import {
+  counterpartyType,
+  flowType,
+  isoDateTime,
+  objectIdString,
+  syncFields,
+} from "./common";
 
 export const counterpartySchema = z
   .object({
@@ -10,6 +16,8 @@ export const counterpartySchema = z
     defaultCategoryId: objectIdString.optional(),
     defaultFlowType: flowType.optional(),
     notes: z.string().max(1000).optional(),
+    isActive: z.boolean().default(true),
+    archivedAt: isoDateTime.optional(),
   })
   .merge(syncFields);
 

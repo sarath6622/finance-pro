@@ -24,6 +24,15 @@ export interface ApiAccount extends SyncFields {
   institution?: string;
   last4Label?: string;
   openingBalancePaise: number;
+  openingDate?: string;
+  creditLimitPaise?: number;
+  statementDay?: number;
+  dueDay?: number;
+  interestRatePA?: number;
+  tenureMonths?: number;
+  emiAmountPaise?: number;
+  isActive: boolean;
+  archivedAt?: string;
   balancePaise: number;
 }
 
@@ -34,14 +43,21 @@ export interface ApiCounterparty extends SyncFields {
   aliases: string[];
   defaultFlowType?: FlowType;
   defaultCategoryId?: string;
+  notes?: string;
+  isActive: boolean;
+  archivedAt?: string;
 }
 
 export interface ApiCategory extends SyncFields {
   _id: string;
   name: string;
   slug: string;
+  parentId?: string;
   defaultFlowType?: FlowType;
+  icon?: string;
+  color?: string;
   sortOrder: number;
+  isActive: boolean;
 }
 
 export interface ApiTransaction extends SyncFields {

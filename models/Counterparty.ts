@@ -13,6 +13,8 @@ const CounterpartySchema = new Schema(
     defaultCategoryId: { type: Schema.Types.ObjectId, ref: "Category" },
     defaultFlowType: { type: String },
     notes: { type: String, maxlength: 1000 },
+    isActive: { type: Boolean, default: true },
+    archivedAt: { type: Date },
     ...syncFields,
   },
   { timestamps: true, collection: "counterparties" },
@@ -21,6 +23,7 @@ const CounterpartySchema = new Schema(
 applyClientEntityIdIndex(CounterpartySchema);
 CounterpartySchema.index({ displayName: 1 });
 CounterpartySchema.index({ aliases: 1 });
+CounterpartySchema.index({ isActive: 1 });
 
 export type CounterpartyDoc = InferSchemaType<typeof CounterpartySchema>;
 export const CounterpartyModel: Model<CounterpartyDoc> =
