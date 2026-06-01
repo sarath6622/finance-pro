@@ -178,7 +178,11 @@ export default function AccountDrillIn() {
           </CardContent>
         </Card>
       </Stack>
-      <EditDialog txn={editing} onClose={() => setEditing(null)} />
+      <EditDialog
+        txn={editing}
+        isContainer={editing ? containerIds.has(editing._id) : false}
+        onClose={() => setEditing(null)}
+      />
       <SplitDialog parent={splitting} onClose={() => setSplitting(null)} />
       <SplitBillDialog txn={billing} onClose={() => setBilling(null)} />
     </Container>
