@@ -16,6 +16,8 @@ import { flowTypeLabel } from "@/lib/flow/labels";
 export interface TransactionRowProps {
   txn: ApiTransaction;
   isContainer: boolean;
+  categoryName?: string;
+  counterpartyName?: string;
   onEdit: () => void;
   onDelete: () => void;
   onSplit: () => void;
@@ -25,6 +27,8 @@ export interface TransactionRowProps {
 export function TransactionRow({
   txn,
   isContainer,
+  categoryName,
+  counterpartyName,
   onEdit,
   onDelete,
   onSplit,
@@ -61,9 +65,22 @@ export function TransactionRow({
         >
           {txn.description || "(no description)"}
         </Typography>
-        <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 0.25 }}>
+        <Stack
+          direction="row"
+          spacing={1}
+          alignItems="center"
+          flexWrap="wrap"
+          useFlexGap
+          sx={{ mt: 0.25 }}
+        >
           <Chip size="small" label={flowTypeLabel(txn.flowType)} />
           {txn.needWant && <Chip size="small" variant="outlined" label={txn.needWant} />}
+          {categoryName && (
+            <Chip size="small" variant="outlined" color="primary" label={categoryName} />
+          )}
+          {counterpartyName && (
+            <Chip size="small" variant="outlined" label={`↔ ${counterpartyName}`} />
+          )}
           {isContainer && <Chip size="small" color="warning" label="split parent" />}
           {txn.source === "split_child" && <Chip size="small" variant="outlined" label="child" />}
           {txn.splitId && <Chip size="small" color="info" variant="outlined" label="bill split" />}

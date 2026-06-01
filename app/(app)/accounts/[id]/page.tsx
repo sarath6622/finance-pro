@@ -16,6 +16,8 @@ import Alert from "@mui/material/Alert";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useAccount } from "@/lib/api/accounts";
 import { useDeleteTransaction, useTransactions } from "@/lib/api/transactions";
+import { useCategories } from "@/lib/api/categories";
+import { useCounterparties } from "@/lib/api/counterparties";
 import { MoneyDisplay } from "@/components/MoneyDisplay";
 import { TransactionRow } from "./TransactionRow";
 import { EditDialog } from "./EditDialog";
@@ -33,6 +35,8 @@ export default function AccountDrillIn() {
     limit: 100,
   });
   const del = useDeleteTransaction();
+  const { data: categories } = useCategories({ includeInactive: true });
+  const { data: counterparties } = useCounterparties({ includeInactive: true });
   const [editing, setEditing] = useState<ApiTransaction | null>(null);
   const [splitting, setSplitting] = useState<ApiTransaction | null>(null);
   const [billing, setBilling] = useState<ApiTransaction | null>(null);
@@ -47,6 +51,14 @@ export default function AccountDrillIn() {
     }
     return set;
   }, [items]);
+  const categoryNameById = useMemo(
+    () => new Map((categories ?? []).map((c) => [c._id, c.name])),
+    [categories],
+  );
+  const counterpartyNameById = useMemo(
+    () => new Map((counterparties ?? []).map((c) => [c._id, c.displayName])),
+    [counterparties],
+  );
 
   async function onDelete(t: ApiTransaction) {
     setOpError(null);
@@ -122,6 +134,10 @@ export default function AccountDrillIn() {
                   key={t._id}
                   txn={t}
                   isContainer={containerIds.has(t._id)}
+                  categoryName={t.categoryId ? categoryNameById.get(t.categoryId) : undefined}
+                  counterpartyName={
+                    t.counterpartyId ? counterpartyNameById.get(t.counterpartyId) : undefined
+                  }
                   onEdit={() => setEditing(t)}
                   onSplit={() => setSplitting(t)}
                   onSplitWithOthers={() => setBilling(t)}
