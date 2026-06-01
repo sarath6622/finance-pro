@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "./client";
 import { invalidateLedger } from "./invalidate";
+import { withOfflineFallback } from "./cache-bridge";
 import type { SyncFields } from "./types";
 
 export type SplitStatus = "open" | "partial" | "settled";
@@ -63,19 +64,27 @@ export const splitKeys = {
 };
 
 export function useSplitBills(status?: SplitStatus) {
+  const queryKey = splitKeys.list(status);
   return useQuery({
-    queryKey: splitKeys.list(status),
-    queryFn: () =>
-      api<{ items: ApiSplitBill[] }>(
-        `/api/split-bills${status ? `?status=${status}` : ""}`,
-      ),
+    queryKey,
+    queryFn: withOfflineFallback<{ items: ApiSplitBill[] }>({
+      queryKey,
+      networkFn: () =>
+        api<{ items: ApiSplitBill[] }>(
+          `/api/split-bills${status ? `?status=${status}` : ""}`,
+        ),
+    }),
   });
 }
 
 export function useSplitBill(id: string) {
+  const queryKey = splitKeys.detail(id);
   return useQuery({
-    queryKey: splitKeys.detail(id),
-    queryFn: () => api<ApiSplitBill>(`/api/split-bills/${id}`),
+    queryKey,
+    queryFn: withOfflineFallback<ApiSplitBill>({
+      queryKey,
+      networkFn: () => api<ApiSplitBill>(`/api/split-bills/${id}`),
+    }),
     enabled: !!id,
   });
 }
@@ -83,7 +92,10 @@ export function useSplitBill(id: string) {
 export function useSplitsReport() {
   return useQuery({
     queryKey: splitKeys.report,
-    queryFn: () => api<ApiR15>("/api/reports/splits"),
+    queryFn: withOfflineFallback<ApiR15>({
+      queryKey: splitKeys.report,
+      networkFn: () => api<ApiR15>("/api/reports/splits"),
+    }),
     staleTime: 30_000,
   });
 }
@@ -165,12 +177,20 @@ export interface MatchProposal {
 }
 
 export function useMatchProposal(counterpartyId: string | undefined) {
+  const queryKey = [
+    "receivables",
+    "match-proposal",
+    counterpartyId ?? "none",
+  ] as const;
   return useQuery({
-    queryKey: ["receivables", "match-proposal", counterpartyId ?? "none"],
-    queryFn: () =>
-      api<{ match: MatchProposal | null }>(
-        `/api/receivables/match-proposal?counterpartyId=${counterpartyId}`,
-      ),
+    queryKey,
+    queryFn: withOfflineFallback<{ match: MatchProposal | null }>({
+      queryKey,
+      networkFn: () =>
+        api<{ match: MatchProposal | null }>(
+          `/api/receivables/match-proposal?counterpartyId=${counterpartyId}`,
+        ),
+    }),
     enabled: !!counterpartyId,
     staleTime: 10_000,
   });

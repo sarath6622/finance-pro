@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "./client";
 import { invalidateLedger } from "./invalidate";
+import { withOfflineFallback } from "./cache-bridge";
 import type { SyncFields } from "./types";
 
 export type ReceivableKind = "cash_loan" | "split_iou";
@@ -107,17 +108,25 @@ export function useReceivables(
   if (filters.counterpartyId) q.counterpartyId = filters.counterpartyId;
   if (filters.kind) q.kind = filters.kind;
   if (filters.includeWrittenOff) q.includeWrittenOff = "true";
+  const queryKey = receivableKeys.list(q);
   return useQuery({
-    queryKey: receivableKeys.list(q),
-    queryFn: () =>
-      api<{ asOf: string; items: ApiReceivable[] }>(`/api/receivables${qs(q)}`),
+    queryKey,
+    queryFn: withOfflineFallback<{ asOf: string; items: ApiReceivable[] }>({
+      queryKey,
+      networkFn: () =>
+        api<{ asOf: string; items: ApiReceivable[] }>(`/api/receivables${qs(q)}`),
+    }),
   });
 }
 
 export function useReceivable(id: string) {
+  const queryKey = receivableKeys.detail(id);
   return useQuery({
-    queryKey: receivableKeys.detail(id),
-    queryFn: () => api<ApiReceivableDetail>(`/api/receivables/${id}`),
+    queryKey,
+    queryFn: withOfflineFallback<ApiReceivableDetail>({
+      queryKey,
+      networkFn: () => api<ApiReceivableDetail>(`/api/receivables/${id}`),
+    }),
     enabled: !!id,
   });
 }
@@ -125,16 +134,23 @@ export function useReceivable(id: string) {
 export function useReceivablesExposure() {
   return useQuery({
     queryKey: receivableKeys.exposure,
-    queryFn: () => api<ApiReceivableExposure>("/api/receivables/exposure"),
+    queryFn: withOfflineFallback<ApiReceivableExposure>({
+      queryKey: receivableKeys.exposure,
+      networkFn: () => api<ApiReceivableExposure>("/api/receivables/exposure"),
+    }),
     staleTime: 30_000,
   });
 }
 
 export function useReceivablesByCounterparty(counterpartyId: string) {
+  const queryKey = receivableKeys.byCounterparty(counterpartyId);
   return useQuery({
-    queryKey: receivableKeys.byCounterparty(counterpartyId),
-    queryFn: () =>
-      api<ApiByCounterparty>(`/api/receivables/by-counterparty/${counterpartyId}`),
+    queryKey,
+    queryFn: withOfflineFallback<ApiByCounterparty>({
+      queryKey,
+      networkFn: () =>
+        api<ApiByCounterparty>(`/api/receivables/by-counterparty/${counterpartyId}`),
+    }),
     enabled: !!counterpartyId,
   });
 }

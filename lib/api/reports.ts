@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { api } from "./client";
+import { withOfflineFallback } from "./cache-bridge";
 
 export type PeriodMode = "calendar" | "pay_cycle";
 
@@ -69,15 +70,23 @@ export const reportKeys = {
 };
 
 export function useMonthOverview(args: PeriodArgs) {
+  const queryKey = reportKeys.monthOverview(args);
   return useQuery({
-    queryKey: reportKeys.monthOverview(args),
-    queryFn: () => api<MonthOverviewResult>(`/api/reports/month-overview${qs(args)}`),
+    queryKey,
+    queryFn: withOfflineFallback<MonthOverviewResult>({
+      queryKey,
+      networkFn: () => api<MonthOverviewResult>(`/api/reports/month-overview${qs(args)}`),
+    }),
   });
 }
 
 export function useBudgetVsActual(args: PeriodArgs) {
+  const queryKey = reportKeys.budgetVsActual(args);
   return useQuery({
-    queryKey: reportKeys.budgetVsActual(args),
-    queryFn: () => api<BudgetVsActualResult>(`/api/reports/budget-vs-actual${qs(args)}`),
+    queryKey,
+    queryFn: withOfflineFallback<BudgetVsActualResult>({
+      queryKey,
+      networkFn: () => api<BudgetVsActualResult>(`/api/reports/budget-vs-actual${qs(args)}`),
+    }),
   });
 }

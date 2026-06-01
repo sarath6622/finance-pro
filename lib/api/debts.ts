@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { api } from "./client";
+import { withOfflineFallback } from "./cache-bridge";
 import type { ApiAccount } from "./types";
 
 export interface ApiAmortizationRow {
@@ -157,17 +158,25 @@ export const debtsKeys = {
 };
 
 export function useLoanSchedule(id: string) {
+  const queryKey = debtsKeys.schedule(id);
   return useQuery({
-    queryKey: debtsKeys.schedule(id),
-    queryFn: () => api<ApiLoanSchedule>(`/api/accounts/${id}/schedule`),
+    queryKey,
+    queryFn: withOfflineFallback<ApiLoanSchedule>({
+      queryKey,
+      networkFn: () => api<ApiLoanSchedule>(`/api/accounts/${id}/schedule`),
+    }),
     enabled: !!id,
   });
 }
 
 export function useLoanOutstanding(id: string) {
+  const queryKey = debtsKeys.outstanding(id);
   return useQuery({
-    queryKey: debtsKeys.outstanding(id),
-    queryFn: () => api<ApiLoanOutstanding>(`/api/accounts/${id}/outstanding`),
+    queryKey,
+    queryFn: withOfflineFallback<ApiLoanOutstanding>({
+      queryKey,
+      networkFn: () => api<ApiLoanOutstanding>(`/api/accounts/${id}/outstanding`),
+    }),
     enabled: !!id,
   });
 }
@@ -184,13 +193,17 @@ export function usePayoffReport(
   if (opts.redirectHorizonMonths !== undefined) {
     q.set("redirectHorizonMonths", String(opts.redirectHorizonMonths));
   }
+  const queryKey = debtsKeys.payoff(
+    surplusPerMonthPaise,
+    opts.redirectReturnPct,
+    opts.redirectHorizonMonths,
+  );
   return useQuery({
-    queryKey: debtsKeys.payoff(
-      surplusPerMonthPaise,
-      opts.redirectReturnPct,
-      opts.redirectHorizonMonths,
-    ),
-    queryFn: () => api<ApiPayoffReport>(`/api/reports/payoff?${q.toString()}`),
+    queryKey,
+    queryFn: withOfflineFallback<ApiPayoffReport>({
+      queryKey,
+      networkFn: () => api<ApiPayoffReport>(`/api/reports/payoff?${q.toString()}`),
+    }),
     staleTime: 10_000,
   });
 }
@@ -198,16 +211,23 @@ export function usePayoffReport(
 export function useNetWorth() {
   return useQuery({
     queryKey: debtsKeys.netWorth,
-    queryFn: () => api<ApiNetWorth>(`/api/reports/net-worth`),
+    queryFn: withOfflineFallback<ApiNetWorth>({
+      queryKey: debtsKeys.netWorth,
+      networkFn: () => api<ApiNetWorth>(`/api/reports/net-worth`),
+    }),
     staleTime: 30_000,
   });
 }
 
 export function useEmiCalendar(horizonDays = 180) {
+  const queryKey = debtsKeys.emiCalendar(horizonDays);
   return useQuery({
-    queryKey: debtsKeys.emiCalendar(horizonDays),
-    queryFn: () =>
-      api<ApiEmiCalendar>(`/api/reports/emi-calendar?horizonDays=${horizonDays}`),
+    queryKey,
+    queryFn: withOfflineFallback<ApiEmiCalendar>({
+      queryKey,
+      networkFn: () =>
+        api<ApiEmiCalendar>(`/api/reports/emi-calendar?horizonDays=${horizonDays}`),
+    }),
     staleTime: 30_000,
   });
 }

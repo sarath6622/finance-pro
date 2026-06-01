@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { api } from "./client";
+import { withOfflineFallback } from "./cache-bridge";
 import type { FlowType } from "@/lib/schemas/common";
 
 export type ObligationStatus =
@@ -52,8 +53,12 @@ export const obligationKeys = {
 };
 
 export function useObligations(args: ObligationsArgs = {}) {
+  const queryKey = obligationKeys.list(args);
   return useQuery({
-    queryKey: obligationKeys.list(args),
-    queryFn: () => api<ApiObligationsBuckets>(`/api/obligations${qs(args)}`),
+    queryKey,
+    queryFn: withOfflineFallback<ApiObligationsBuckets>({
+      queryKey,
+      networkFn: () => api<ApiObligationsBuckets>(`/api/obligations${qs(args)}`),
+    }),
   });
 }

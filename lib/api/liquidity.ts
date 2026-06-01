@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { api } from "./client";
+import { withOfflineFallback } from "./cache-bridge";
 
 export interface ApiLiquidityForecast {
   asOf: string;
@@ -88,7 +89,10 @@ export const liquidityKeys = {
 export function useLiquidityForecast() {
   return useQuery({
     queryKey: liquidityKeys.forecast,
-    queryFn: () => api<ApiLiquidityForecast>("/api/reports/liquidity-forecast"),
+    queryFn: withOfflineFallback<ApiLiquidityForecast>({
+      queryKey: liquidityKeys.forecast,
+      networkFn: () => api<ApiLiquidityForecast>("/api/reports/liquidity-forecast"),
+    }),
     staleTime: 30_000,
   });
 }
@@ -96,22 +100,33 @@ export function useLiquidityForecast() {
 export function useBurnDown() {
   return useQuery({
     queryKey: liquidityKeys.burnDown,
-    queryFn: () => api<ApiBurnDown>("/api/reports/burn-down"),
+    queryFn: withOfflineFallback<ApiBurnDown>({
+      queryKey: liquidityKeys.burnDown,
+      networkFn: () => api<ApiBurnDown>("/api/reports/burn-down"),
+    }),
     staleTime: 30_000,
   });
 }
 
 export function useCashFlow(year: number, month: number, mode: "calendar" | "pay_cycle") {
+  const queryKey = liquidityKeys.cashFlow(year, month, mode);
   return useQuery({
-    queryKey: liquidityKeys.cashFlow(year, month, mode),
-    queryFn: () =>
-      api<ApiCashFlow>(
-        `/api/reports/cash-flow?year=${year}&month=${month}&mode=${mode}`,
-      ),
+    queryKey,
+    queryFn: withOfflineFallback<ApiCashFlow>({
+      queryKey,
+      networkFn: () =>
+        api<ApiCashFlow>(
+          `/api/reports/cash-flow?year=${year}&month=${month}&mode=${mode}`,
+        ),
+    }),
     staleTime: 30_000,
   });
 }
 
+// Lend-safety is intentionally NOT cached. It is a fresh-decision
+// guard — a stale answer could approve a lend that the current
+// liquidity position would actually break (FR-25). The SW route table
+// matches: /api/lend-safety is NetworkOnly.
 export function useLendSafety(amountPaise: number | null, date?: string) {
   return useQuery({
     queryKey: liquidityKeys.lendSafety(amountPaise ?? 0, date),

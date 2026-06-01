@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "./client";
 import { invalidateLedger } from "./invalidate";
+import { withOfflineFallback } from "./cache-bridge";
 import type {
   ApiTransaction,
   CreateTransactionInput,
@@ -29,10 +30,14 @@ function buildQuery(filters: Record<string, string | number | undefined>): strin
 }
 
 export function useTransactions(filters: { accountId?: string; limit?: number } = {}) {
+  const queryKey = txnKeys.list(filters);
   return useQuery({
-    queryKey: txnKeys.list(filters),
-    queryFn: () =>
-      api<PaginatedTransactions>(`/api/transactions${buildQuery(filters)}`),
+    queryKey,
+    queryFn: withOfflineFallback<PaginatedTransactions>({
+      queryKey,
+      networkFn: () =>
+        api<PaginatedTransactions>(`/api/transactions${buildQuery(filters)}`),
+    }),
   });
 }
 

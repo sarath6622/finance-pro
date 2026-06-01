@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "./client";
 import { invalidateLedger } from "./invalidate";
+import { withOfflineFallback } from "./cache-bridge";
 import type { SyncFields } from "./types";
 
 export interface ApiBudget extends SyncFields {
@@ -25,12 +26,16 @@ export const budgetKeys = {
 };
 
 export function useBudgets(month?: string) {
+  const queryKey = budgetKeys.list(month);
   return useQuery({
-    queryKey: budgetKeys.list(month),
-    queryFn: () => {
-      const q = month ? `?month=${encodeURIComponent(month)}` : "";
-      return api<{ items: ApiBudget[] }>(`/api/budgets${q}`).then((r) => r.items);
-    },
+    queryKey,
+    queryFn: withOfflineFallback<ApiBudget[]>({
+      queryKey,
+      networkFn: () => {
+        const q = month ? `?month=${encodeURIComponent(month)}` : "";
+        return api<{ items: ApiBudget[] }>(`/api/budgets${q}`).then((r) => r.items);
+      },
+    }),
   });
 }
 

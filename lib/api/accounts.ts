@@ -3,6 +3,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "./client";
 import { invalidateLedger } from "./invalidate";
+import { withOfflineFallback } from "./cache-bridge";
+import { stripAccountBalance, stripAccountBalances } from "@/db/local/strip";
 import type { ApiAccount } from "./types";
 import type {
   AccountCreateInput,
@@ -17,20 +19,33 @@ export const accountKeys = {
 
 export function useAccounts(opts: { includeInactive?: boolean } = {}) {
   const includeInactive = !!opts.includeInactive;
+  const queryKey = accountKeys.list(includeInactive);
   return useQuery({
-    queryKey: accountKeys.list(includeInactive),
-    queryFn: () =>
-      api<{ items: ApiAccount[] }>(
-        includeInactive ? "/api/accounts?includeInactive=1" : "/api/accounts",
-      ).then((r) => r.items),
+    queryKey,
+    queryFn: withOfflineFallback<ApiAccount[]>({
+      queryKey,
+      networkFn: () =>
+        api<{ items: ApiAccount[] }>(
+          includeInactive ? "/api/accounts?includeInactive=1" : "/api/accounts",
+        ).then((r) => r.items),
+      beforeCache: stripAccountBalances,
+    }),
   });
 }
 
 export function useAccount(id: string) {
+  const queryKey = accountKeys.detail(id);
   return useQuery({
-    queryKey: accountKeys.detail(id),
-    queryFn: () =>
-      api<ApiAccount & { transactionCount: number }>(`/api/accounts/${id}`),
+    queryKey,
+    queryFn: withOfflineFallback<ApiAccount & { transactionCount: number }>({
+      queryKey,
+      networkFn: () =>
+        api<ApiAccount & { transactionCount: number }>(`/api/accounts/${id}`),
+      beforeCache: (data) => ({
+        ...stripAccountBalance(data),
+        transactionCount: data.transactionCount,
+      }),
+    }),
     enabled: !!id,
   });
 }

@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "./client";
 import { invalidateLedger } from "./invalidate";
+import { withOfflineFallback } from "./cache-bridge";
 import type { ApiCategory } from "./types";
 import type {
   CategoryCreateInput,
@@ -16,12 +17,16 @@ export const categoryKeys = {
 
 export function useCategories(opts: { includeInactive?: boolean } = {}) {
   const includeInactive = !!opts.includeInactive;
+  const queryKey = categoryKeys.list(includeInactive);
   return useQuery({
-    queryKey: categoryKeys.list(includeInactive),
-    queryFn: () =>
-      api<{ items: ApiCategory[] }>(
-        includeInactive ? "/api/categories?includeInactive=1" : "/api/categories",
-      ).then((r) => r.items),
+    queryKey,
+    queryFn: withOfflineFallback<ApiCategory[]>({
+      queryKey,
+      networkFn: () =>
+        api<{ items: ApiCategory[] }>(
+          includeInactive ? "/api/categories?includeInactive=1" : "/api/categories",
+        ).then((r) => r.items),
+    }),
   });
 }
 

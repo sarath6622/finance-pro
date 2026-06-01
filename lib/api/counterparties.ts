@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "./client";
 import { invalidateLedger } from "./invalidate";
+import { withOfflineFallback } from "./cache-bridge";
 import type { ApiCounterparty } from "./types";
 import type {
   CounterpartyCreateInput,
@@ -16,14 +17,18 @@ export const counterpartyKeys = {
 
 export function useCounterparties(opts: { includeInactive?: boolean } = {}) {
   const includeInactive = !!opts.includeInactive;
+  const queryKey = counterpartyKeys.list(includeInactive);
   return useQuery({
-    queryKey: counterpartyKeys.list(includeInactive),
-    queryFn: () =>
-      api<{ items: ApiCounterparty[] }>(
-        includeInactive
-          ? "/api/counterparties?includeInactive=1"
-          : "/api/counterparties",
-      ).then((r) => r.items),
+    queryKey,
+    queryFn: withOfflineFallback<ApiCounterparty[]>({
+      queryKey,
+      networkFn: () =>
+        api<{ items: ApiCounterparty[] }>(
+          includeInactive
+            ? "/api/counterparties?includeInactive=1"
+            : "/api/counterparties",
+        ).then((r) => r.items),
+    }),
   });
 }
 

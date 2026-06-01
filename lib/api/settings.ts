@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "./client";
 import { invalidateLedger } from "./invalidate";
+import { withOfflineFallback } from "./cache-bridge";
 
 export interface ApiSettings {
   liquidityFloorPaise: number;
@@ -20,7 +21,10 @@ export const settingsKeys = { current: ["settings"] as const };
 export function useSettings() {
   return useQuery({
     queryKey: settingsKeys.current,
-    queryFn: () => api<ApiSettings>("/api/settings"),
+    queryFn: withOfflineFallback<ApiSettings>({
+      queryKey: settingsKeys.current,
+      networkFn: () => api<ApiSettings>("/api/settings"),
+    }),
   });
 }
 

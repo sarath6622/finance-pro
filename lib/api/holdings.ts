@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "./client";
 import { invalidateLedger } from "./invalidate";
+import { withOfflineFallback } from "./cache-bridge";
 import type { SyncFields } from "./types";
 
 export type AssetType = "crypto" | "stock" | "mutual_fund";
@@ -112,15 +113,22 @@ export const holdingsKeys = {
 export function useHoldings() {
   return useQuery({
     queryKey: holdingsKeys.list,
-    queryFn: () => api<{ items: ApiHolding[] }>(`/api/holdings`),
+    queryFn: withOfflineFallback<{ items: ApiHolding[] }>({
+      queryKey: holdingsKeys.list,
+      networkFn: () => api<{ items: ApiHolding[] }>(`/api/holdings`),
+    }),
     staleTime: 10_000,
   });
 }
 
 export function useHolding(id: string) {
+  const queryKey = holdingsKeys.detail(id);
   return useQuery({
-    queryKey: holdingsKeys.detail(id),
-    queryFn: () => api<ApiHoldingDetail>(`/api/holdings/${id}`),
+    queryKey,
+    queryFn: withOfflineFallback<ApiHoldingDetail>({
+      queryKey,
+      networkFn: () => api<ApiHoldingDetail>(`/api/holdings/${id}`),
+    }),
     enabled: !!id,
   });
 }
@@ -128,7 +136,10 @@ export function useHolding(id: string) {
 export function usePortfolio() {
   return useQuery({
     queryKey: holdingsKeys.portfolio,
-    queryFn: () => api<ApiPortfolio>(`/api/reports/portfolio`),
+    queryFn: withOfflineFallback<ApiPortfolio>({
+      queryKey: holdingsKeys.portfolio,
+      networkFn: () => api<ApiPortfolio>(`/api/reports/portfolio`),
+    }),
     staleTime: 30_000,
   });
 }

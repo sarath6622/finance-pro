@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "./client";
 import { invalidateLedger } from "./invalidate";
+import { withOfflineFallback } from "./cache-bridge";
 import type { SyncFields } from "./types";
 import type { FlowType } from "@/lib/schemas/common";
 
@@ -44,8 +45,11 @@ export const recurringKeys = { all: ["recurring"] as const };
 export function useRecurringRules() {
   return useQuery({
     queryKey: recurringKeys.all,
-    queryFn: () =>
-      api<{ items: ApiRecurringRule[] }>("/api/recurring").then((r) => r.items),
+    queryFn: withOfflineFallback<ApiRecurringRule[]>({
+      queryKey: recurringKeys.all,
+      networkFn: () =>
+        api<{ items: ApiRecurringRule[] }>("/api/recurring").then((r) => r.items),
+    }),
   });
 }
 
