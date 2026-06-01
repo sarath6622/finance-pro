@@ -30,6 +30,8 @@ import LendingIcon from "@mui/icons-material/HandshakeOutlined";
 import MoreIcon from "@mui/icons-material/MoreHorizOutlined";
 import MenuIcon from "@mui/icons-material/MenuRounded";
 import { ThemeToggleButton } from "@/components/ThemeToggle";
+import { InstallPrompt } from "@/components/pwa/InstallPrompt";
+import { UpdateBanner } from "@/components/pwa/UpdateBanner";
 
 interface NavItem {
   href: string;
@@ -122,6 +124,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </Stack>
           )}
           <Box sx={{ flexGrow: 1 }} />
+          <InstallPrompt />
           <ThemeToggleButton />
           {isDesktop && (
             <Button size="small" color="inherit" onClick={() => signOut({ callbackUrl: "/" })}>
@@ -169,6 +172,8 @@ export function AppShell({ children }: { children: ReactNode }) {
       >
         {children}
       </Box>
+
+      <UpdateBanner />
 
       {!isDesktop && (
         <Slide appear={false} direction="up" in={!hideBottomNav}>
