@@ -12,6 +12,7 @@ export interface ApiSettings {
   baseCurrency: "INR";
   payCycleMode: "calendar" | "pay_cycle";
   includePassthroughInReports: boolean;
+  notifyEnabled: boolean;
   version: number;
   bookedAt: string;
 }

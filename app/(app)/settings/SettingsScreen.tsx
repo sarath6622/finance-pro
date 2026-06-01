@@ -15,6 +15,7 @@ import { useSettings, useUpdateSettings } from "@/lib/api/settings";
 import { AccountsSection } from "./AccountsSection";
 import { CounterpartiesSection } from "./CounterpartiesSection";
 import { CategoriesSection } from "./CategoriesSection";
+import { NotificationSection } from "./NotificationSection";
 
 export function SettingsScreen() {
   const { data: settings } = useSettings();
@@ -22,14 +23,12 @@ export function SettingsScreen() {
   const { preference: themePref, resolvedMode, setPreference: setThemePref } = useThemeMode();
   const [floorPaise, setFloorPaise] = useState<number | null>(null);
   const [payday, setPayday] = useState<number>(5);
-  const [reminderTime, setReminderTime] = useState<string>("21:00");
   const [payCycleMode, setPayCycleMode] = useState<"calendar" | "pay_cycle">("pay_cycle");
 
   useEffect(() => {
     if (settings) {
       setFloorPaise(settings.liquidityFloorPaise);
       setPayday(settings.paydayDayOfMonth);
-      setReminderTime(settings.reminderTime);
       setPayCycleMode(settings.payCycleMode);
     }
   }, [settings]);
@@ -38,7 +37,6 @@ export function SettingsScreen() {
     update.mutate({
       ...(floorPaise !== null ? { liquidityFloorPaise: floorPaise } : {}),
       paydayDayOfMonth: payday,
-      reminderTime,
       payCycleMode,
     });
   }
@@ -121,14 +119,6 @@ export function SettingsScreen() {
               </ToggleButtonGroup>
             </Stack>
 
-            <TextField
-              label="Reminder time (HH:MM 24-hour, ships in P10)"
-              value={reminderTime}
-              onChange={(e) => setReminderTime(e.target.value)}
-              sx={{ maxWidth: { sm: 240 } }}
-              fullWidth
-            />
-
             <Stack direction="row">
               <Button
                 variant="contained"
@@ -141,6 +131,8 @@ export function SettingsScreen() {
           </Stack>
         </CardContent>
       </Card>
+
+      <NotificationSection />
 
       <AccountsSection />
       <CounterpartiesSection />

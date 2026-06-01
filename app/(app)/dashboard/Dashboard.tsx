@@ -20,6 +20,7 @@ import { ObligationsCard } from "./ObligationsCard";
 import { OwedToMeTile } from "./OwedToMeTile";
 import { NetWorthTile } from "./NetWorthTile";
 import { LiquidityTile } from "./LiquidityTile";
+import { StreakChip } from "@/components/dashboard/StreakChip";
 
 function todayIst(): { year: number; month: number; day: number } {
   const d = new Date(Date.now() + 5.5 * 3600 * 1000);
@@ -56,9 +57,10 @@ export function Dashboard() {
   return (
     <Stack spacing={3}>
       <Stack direction={{ xs: "column", md: "row" }} alignItems={{ md: "center" }} spacing={2}>
-        <Typography variant="h1" sx={{ flexGrow: 1 }}>
-          Dashboard
-        </Typography>
+        <Stack direction="row" spacing={1.25} alignItems="center" sx={{ flexGrow: 1 }}>
+          <Typography variant="h1">Dashboard</Typography>
+          <StreakChip />
+        </Stack>
         <PeriodSelector value={periodState} onChange={setPeriodState} />
       </Stack>
 

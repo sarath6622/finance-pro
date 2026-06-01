@@ -32,6 +32,7 @@ import MenuIcon from "@mui/icons-material/MenuRounded";
 import { ThemeToggleButton } from "@/components/ThemeToggle";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { UpdateBanner } from "@/components/pwa/UpdateBanner";
+import { DailyReminderScheduler } from "@/components/pwa/DailyReminderScheduler";
 
 interface NavItem {
   href: string;
@@ -174,6 +175,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </Box>
 
       <UpdateBanner />
+      <DailyReminderScheduler />
 
       {!isDesktop && (
         <Slide appear={false} direction="up" in={!hideBottomNav}>

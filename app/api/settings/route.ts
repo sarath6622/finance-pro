@@ -16,6 +16,7 @@ function shape(doc: Record<string, unknown> | null) {
     baseCurrency: doc.baseCurrency,
     payCycleMode: doc.payCycleMode,
     includePassthroughInReports: doc.includePassthroughInReports,
+    notifyEnabled: doc.notifyEnabled ?? false,
   };
 }
 

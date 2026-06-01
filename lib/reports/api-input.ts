@@ -28,6 +28,7 @@ export const settingsPatchInput = z.object({
   paydayDayOfMonth: z.coerce.number().int().min(1).max(31).optional(),
   payCycleMode: z.enum(["calendar", "pay_cycle"]).optional(),
   includePassthroughInReports: z.boolean().optional(),
+  notifyEnabled: z.boolean().optional(),
 });
 
 export type SettingsPatchInput = z.infer<typeof settingsPatchInput>;
