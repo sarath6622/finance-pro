@@ -18,6 +18,7 @@ export interface TransactionRowProps {
   isContainer: boolean;
   categoryName?: string;
   counterpartyName?: string;
+  closingBalancePaise?: number;
   onEdit: () => void;
   onDelete: () => void;
   onSplit: () => void;
@@ -29,6 +30,7 @@ export function TransactionRow({
   isContainer,
   categoryName,
   counterpartyName,
+  closingBalancePaise,
   onEdit,
   onDelete,
   onSplit,
@@ -88,6 +90,15 @@ export function TransactionRow({
       </Box>
       <Box textAlign="right" sx={{ minWidth: 120 }}>
         <MoneyDisplay paise={signedPaise} signed colorize monospace />
+        {closingBalancePaise !== undefined && (
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ display: "block", mt: 0.25, fontFamily: "ui-monospace, SFMono-Regular, monospace" }}
+          >
+            bal <MoneyDisplay paise={closingBalancePaise} signed monospace />
+          </Typography>
+        )}
       </Box>
       <IconButton size="small" onClick={(e) => setAnchor(e.currentTarget)}>
         <MoreVertIcon fontSize="small" />

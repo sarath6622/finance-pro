@@ -18,6 +18,8 @@ import { useAccount } from "@/lib/api/accounts";
 import { useDeleteTransaction, useTransactions } from "@/lib/api/transactions";
 import { useCategories } from "@/lib/api/categories";
 import { useCounterparties } from "@/lib/api/counterparties";
+import { runningBalancesFromAnchor } from "@/lib/balances";
+import type { TxnLite, AccountLite } from "@/lib/balances/types";
 import { MoneyDisplay } from "@/components/MoneyDisplay";
 import { TransactionRow } from "./TransactionRow";
 import { EditDialog } from "./EditDialog";
@@ -59,6 +61,28 @@ export default function AccountDrillIn() {
     () => new Map((counterparties ?? []).map((c) => [c._id, c.displayName])),
     [counterparties],
   );
+  const runningBalanceById = useMemo(() => {
+    if (!account || typeof account.balancePaise !== "number") {
+      return new Map<string, number>();
+    }
+    const lite: TxnLite[] = items.map((t) => ({
+      _id: t._id,
+      accountId: t.accountId,
+      valueDate: t.valueDate,
+      flowType: t.flowType,
+      direction: t.direction,
+      amountPaise: t.amountPaise,
+      isDeleted: t.isDeleted,
+      ...(t.parentTransactionId ? { parentTransactionId: t.parentTransactionId } : {}),
+    }));
+    const acc: AccountLite = {
+      _id: account._id,
+      classification: account.classification,
+      openingBalancePaise: account.openingBalancePaise,
+      ...(account.openingDate ? { openingDate: account.openingDate } : {}),
+    };
+    return runningBalancesFromAnchor(lite, account.balancePaise, acc);
+  }, [account, items]);
 
   async function onDelete(t: ApiTransaction) {
     setOpError(null);
@@ -138,6 +162,7 @@ export default function AccountDrillIn() {
                   counterpartyName={
                     t.counterpartyId ? counterpartyNameById.get(t.counterpartyId) : undefined
                   }
+                  closingBalancePaise={runningBalanceById.get(t._id)}
                   onEdit={() => setEditing(t)}
                   onSplit={() => setSplitting(t)}
                   onSplitWithOthers={() => setBilling(t)}

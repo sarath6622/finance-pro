@@ -68,6 +68,41 @@ export function allAccountBalances(input: BalanceInput): AccountBalance[] {
   return input.accounts.map((a) => accountBalanceAt(a._id, input));
 }
 
+/**
+ * Per-row closing balance for the account drill-in list view.
+ *
+ * Walks a descending-by-time list of an account's transactions
+ * (newest first — the order the UI already shows) and anchors the
+ * topmost row's post-balance to `currentBalancePaise`. Each older row
+ * gets the previous running balance minus its delta.
+ *
+ * Anchoring at the current balance means the function works even
+ * when the list is paginated — we never need to load every txn back
+ * to the account's opening. Soft-deleted and split-parent rows are
+ * skipped (they don't move the balance); they have no entry in the
+ * map and the UI shows "—" for them.
+ *
+ * The list MUST be passed in descending chronological order and MUST
+ * contain only one account's transactions, otherwise the math is
+ * wrong. Caller is expected to filter and sort.
+ */
+export function runningBalancesFromAnchor(
+  descendingTxns: TxnLite[],
+  currentBalancePaise: number,
+  account: AccountLite,
+): Map<string, number> {
+  const childrenByParent = liveChildrenByParent(descendingTxns);
+  const out = new Map<string, number>();
+  let running = currentBalancePaise;
+  for (const t of descendingTxns) {
+    if (!isActiveTxn(t)) continue;
+    if (isSplitParentContainer(t, childrenByParent)) continue;
+    out.set(t._id, running);
+    running -= signedDelta(t, account).paise;
+  }
+  return out;
+}
+
 export function accountTimeSeries(
   accountId: string,
   input: BalanceInput,
