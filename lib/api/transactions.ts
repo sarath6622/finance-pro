@@ -6,6 +6,7 @@ import { invalidateLedger } from "./invalidate";
 import { withOfflineFallback } from "./cache-bridge";
 import type {
   ApiTransaction,
+  CardSettlementBody,
   CreateTransactionInput,
   PaginatedTransactions,
   PatchTransactionInput,
@@ -97,6 +98,19 @@ export function useCreateTransfer() {
     mutationFn: (body: TransferBody) =>
       api<{ legA: ApiTransaction; legB: ApiTransaction }>(
         "/api/transactions/transfer",
+        { method: "POST", body: JSON.stringify(body) },
+      ),
+    onSuccess: () => invalidateLedger(qc),
+  });
+}
+
+export function useCreateCardSettlement() {
+  const qc = useQueryClient();
+  return useMutation({
+    meta: { successMessage: "Card payment recorded" },
+    mutationFn: (body: CardSettlementBody) =>
+      api<{ legBank: ApiTransaction; legCard: ApiTransaction }>(
+        "/api/transactions/card-settlement",
         { method: "POST", body: JSON.stringify(body) },
       ),
     onSuccess: () => invalidateLedger(qc),

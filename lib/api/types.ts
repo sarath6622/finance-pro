@@ -142,3 +142,13 @@ export interface TransferBody {
   description?: string;
   notes?: string;
 }
+
+export interface CardSettlementBody {
+  fromAccountId: string;
+  toCardAccountId: string;
+  amountPaise: number;
+  valueDate: string;
+  description?: string;
+  notes?: string;
+  acceptUnderpayment?: boolean;
+}

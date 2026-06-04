@@ -1,5 +1,9 @@
 import { Money } from "@/lib/money";
-import type { SplitChildInput, TransferInput } from "./validate";
+import type {
+  CardSettlementInput,
+  SplitChildInput,
+  TransferInput,
+} from "./validate";
 
 export interface EditEntry {
   at: string;
@@ -162,4 +166,51 @@ export function buildTransferLegs(
     reviewStatus: "confirmed",
   };
   return { legA, legB };
+}
+
+export interface CardSettlementLeg {
+  accountId: string;
+  amountPaise: number;
+  direction: "in" | "out";
+  flowType: "card_settlement";
+  valueDate: string;
+  bookedAt: string;
+  description: string;
+  notes?: string;
+  source: "manual";
+  reviewStatus: "confirmed";
+  reimbursesTransactionId?: string;
+}
+
+export function buildCardSettlementLegs(
+  input: CardSettlementInput,
+  nowIso: string,
+): { legBank: CardSettlementLeg; legCard: CardSettlementLeg } {
+  const bookedAt = input.bookedAt ?? nowIso;
+  const desc = input.description ?? "";
+  const legBank: CardSettlementLeg = {
+    accountId: input.fromAccountId,
+    amountPaise: input.amountPaise,
+    direction: "out",
+    flowType: "card_settlement",
+    valueDate: input.valueDate,
+    bookedAt,
+    description: desc,
+    ...(input.notes ? { notes: input.notes } : {}),
+    source: "manual",
+    reviewStatus: "confirmed",
+  };
+  const legCard: CardSettlementLeg = {
+    accountId: input.toCardAccountId,
+    amountPaise: input.amountPaise,
+    direction: "in",
+    flowType: "card_settlement",
+    valueDate: input.valueDate,
+    bookedAt,
+    description: desc,
+    ...(input.notes ? { notes: input.notes } : {}),
+    source: "manual",
+    reviewStatus: "confirmed",
+  };
+  return { legBank, legCard };
 }

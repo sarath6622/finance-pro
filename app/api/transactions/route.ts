@@ -2,17 +2,14 @@ import { NextResponse, type NextRequest } from "next/server";
 import { connectMongo } from "@/lib/db/mongo";
 import { requireSession } from "@/lib/auth/session";
 import { errorResponse } from "@/lib/http/errors";
-import { AccountModel, ReceivableModel, TransactionModel } from "@/models";
+import { ReceivableModel, TransactionModel } from "@/models";
 import { listFilters, transactionCreateInput } from "@/lib/transactions";
 import {
   applyRepaymentToReceivable,
   createLendingOutWithReceivable,
 } from "@/lib/receivables/lifecycle";
 import { recomputeBillStatus } from "@/lib/splits/lifecycle";
-import { cardInFullCheck, createDebtRepayment } from "@/lib/loans/lifecycle";
-import { accountBalanceAt } from "@/lib/balances/compute";
-import type { AccountLite, TxnLite } from "@/lib/balances/types";
-import { ApiError } from "@/lib/http/errors";
+import { createDebtRepayment } from "@/lib/loans/lifecycle";
 
 export const dynamic = "force-dynamic";
 
@@ -135,51 +132,6 @@ export async function POST(req: NextRequest) {
         },
         { status: 201 },
       );
-    }
-
-    if (input.flowType === "card_settlement") {
-      // FR-22 card-in-full guard. Compute the card account's *current* balance
-      // (it's a liability, so the absolute value of its balance is what's owed).
-      const card = await AccountModel.findById(input.accountId).lean();
-      if (card && card.kind === "credit_card") {
-        const allTxns = await TransactionModel.find(
-          { accountId: card._id, isDeleted: false },
-          { _id: 1, accountId: 1, valueDate: 1, flowType: 1, direction: 1, amountPaise: 1, isDeleted: 1, parentTransactionId: 1 },
-        ).lean();
-        const lite: TxnLite[] = allTxns.map((t) => ({
-          _id: String(t._id),
-          accountId: String(t.accountId),
-          valueDate: t.valueDate,
-          flowType: t.flowType as TxnLite["flowType"],
-          direction: t.direction as TxnLite["direction"],
-          amountPaise: t.amountPaise,
-          isDeleted: false,
-          ...(t.parentTransactionId
-            ? { parentTransactionId: String(t.parentTransactionId) }
-            : {}),
-        }));
-        const acc: AccountLite = {
-          _id: String(card._id),
-          classification: card.classification,
-          openingBalancePaise: card.openingBalancePaise,
-          ...(card.openingDate ? { openingDate: card.openingDate.toString() } : {}),
-        };
-        // Card balance is liability-negative in the ledger; we want the
-        // positive-paise "amount owed."
-        const ledger = accountBalanceAt(String(card._id), {
-          transactions: lite,
-          accounts: [acc],
-        }).ownerPerspectivePaise;
-        const owed = Math.max(0, -ledger);
-        const check = cardInFullCheck(owed, input.amountPaise);
-        if (!check.isFull && !input.acceptUnderpayment) {
-          throw new ApiError(
-            "conflict",
-            `Card settlement (${input.amountPaise} paise) is below statement balance (${owed} paise). Pass acceptUnderpayment=true to record anyway.`,
-            { shortfallPaise: check.shortfallPaise, cardBalancePaise: owed },
-          );
-        }
-      }
     }
 
     if (input.flowType === "lending_repaid" || input.flowType === "reimbursement_in") {

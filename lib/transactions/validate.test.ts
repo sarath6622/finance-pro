@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
+  cardSettlementInput,
   splitInput,
   transactionCreateInput,
   transactionPatchInput,
@@ -25,6 +26,12 @@ describe("transactionCreateInput", () => {
     expect(() => transactionCreateInput.parse({ ...base, flowType: "transfer" })).toThrow();
   });
 
+  it("rejects flowType 'card_settlement' on the generic endpoint", () => {
+    expect(() =>
+      transactionCreateInput.parse({ ...base, flowType: "card_settlement" }),
+    ).toThrow();
+  });
+
   it("rejects direction that contradicts flowType", () => {
     expect(() =>
       transactionCreateInput.parse({ ...base, flowType: "income", direction: "out" }),
@@ -32,15 +39,6 @@ describe("transactionCreateInput", () => {
     expect(() =>
       transactionCreateInput.parse({ ...base, flowType: "spend", direction: "in" }),
     ).toThrow();
-  });
-
-  it("allows either direction for card_settlement", () => {
-    expect(() =>
-      transactionCreateInput.parse({ ...base, flowType: "card_settlement", direction: "in" }),
-    ).not.toThrow();
-    expect(() =>
-      transactionCreateInput.parse({ ...base, flowType: "card_settlement", direction: "out" }),
-    ).not.toThrow();
   });
 
   it("requires amountPaise > 0", () => {
@@ -106,5 +104,34 @@ describe("transferInput", () => {
 
   it("accepts a valid transfer", () => {
     expect(() => transferInput.parse(base)).not.toThrow();
+  });
+});
+
+describe("cardSettlementInput", () => {
+  const base = {
+    fromAccountId: validOid,
+    toCardAccountId: "0".repeat(23) + "2",
+    amountPaise: 100000,
+    valueDate: "2026-05-30",
+  };
+
+  it("accepts a valid card settlement", () => {
+    expect(() => cardSettlementInput.parse(base)).not.toThrow();
+  });
+
+  it("rejects same-account settlement", () => {
+    expect(() =>
+      cardSettlementInput.parse({ ...base, toCardAccountId: base.fromAccountId }),
+    ).toThrow();
+  });
+
+  it("accepts acceptUnderpayment flag", () => {
+    expect(() =>
+      cardSettlementInput.parse({ ...base, acceptUnderpayment: true }),
+    ).not.toThrow();
+  });
+
+  it("requires amountPaise > 0", () => {
+    expect(() => cardSettlementInput.parse({ ...base, amountPaise: 0 })).toThrow();
   });
 });

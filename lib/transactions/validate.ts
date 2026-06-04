@@ -57,6 +57,11 @@ export const transactionCreateInput = baseCreate
     message: "Use POST /api/transactions/transfer to create a transfer (two legs).",
     path: ["flowType"],
   })
+  .refine((d) => d.flowType !== "card_settlement", {
+    message:
+      "Use POST /api/transactions/card-settlement to record a card payment (two legs: bank → card).",
+    path: ["flowType"],
+  })
   .refine(flowDirectionCoherent, {
     message: "direction does not match flowType (e.g., income=in, spend=out).",
     path: ["direction"],
@@ -183,6 +188,24 @@ export const transferInput = z
   });
 
 export type TransferInput = z.infer<typeof transferInput>;
+
+export const cardSettlementInput = z
+  .object({
+    fromAccountId: objectIdString,
+    toCardAccountId: objectIdString,
+    amountPaise: paiseAmount.refine((n) => n > 0, "amountPaise must be > 0"),
+    valueDate: isoDate,
+    bookedAt: isoDateTime.optional(),
+    description: z.string().max(500).optional(),
+    notes: z.string().max(2000).optional(),
+    acceptUnderpayment: z.boolean().optional(),
+  })
+  .refine((d) => d.fromAccountId !== d.toCardAccountId, {
+    message: "fromAccountId and toCardAccountId must differ",
+    path: ["toCardAccountId"],
+  });
+
+export type CardSettlementInput = z.infer<typeof cardSettlementInput>;
 
 export const listFilters = z.object({
   accountId: objectIdString.optional(),

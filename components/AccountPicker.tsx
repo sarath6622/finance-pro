@@ -10,6 +10,7 @@ export interface AccountPickerProps {
   onChange: (id: string | null) => void;
   label?: string;
   required?: boolean;
+  filter?: (a: ApiAccount) => boolean;
 }
 
 export function AccountPicker({
@@ -17,8 +18,10 @@ export function AccountPicker({
   onChange,
   label = "Account",
   required,
+  filter,
 }: AccountPickerProps) {
-  const { data: accounts = [], isLoading } = useAccounts();
+  const { data: allAccounts = [], isLoading } = useAccounts();
+  const accounts = filter ? allAccounts.filter(filter) : allAccounts;
   const selected = accounts.find((a) => a._id === value) ?? null;
   return (
     <Autocomplete<ApiAccount>

@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   applyEditHistory,
+  buildCardSettlementLegs,
   buildSplitChildren,
   buildTransferLegs,
   markSoftDeleted,
@@ -147,5 +148,29 @@ describe("buildTransferLegs", () => {
     expect(legB.flowType).toBe("transfer");
     expect(legA.amountPaise).toBe(legB.amountPaise);
     expect(legA.valueDate).toBe(legB.valueDate);
+  });
+});
+
+describe("buildCardSettlementLegs", () => {
+  it("debits the bank and credits the card with flowType card_settlement", () => {
+    const { legBank, legCard } = buildCardSettlementLegs(
+      {
+        fromAccountId: "bank-1",
+        toCardAccountId: "card-1",
+        amountPaise: 1_234_400,
+        valueDate: "2026-06-04",
+      },
+      NOW,
+    );
+    expect(legBank.accountId).toBe("bank-1");
+    expect(legBank.direction).toBe("out");
+    expect(legBank.flowType).toBe("card_settlement");
+    expect(legCard.accountId).toBe("card-1");
+    expect(legCard.direction).toBe("in");
+    expect(legCard.flowType).toBe("card_settlement");
+    expect(legBank.amountPaise).toBe(legCard.amountPaise);
+    expect(legBank.valueDate).toBe(legCard.valueDate);
+    expect(legBank.bookedAt).toBe(NOW);
+    expect(legCard.bookedAt).toBe(NOW);
   });
 });

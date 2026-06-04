@@ -17,7 +17,7 @@ import { AccountPicker } from "@/components/AccountPicker";
 import { CounterpartyPicker } from "@/components/CounterpartyPicker";
 import { CategoryPicker } from "@/components/CategoryPicker";
 import { DueModelSelector } from "@/components/DueModelSelector";
-import { useCreateTransaction } from "@/lib/api/transactions";
+import { useCreateCardSettlement, useCreateTransaction } from "@/lib/api/transactions";
 import { ApiClientError } from "@/lib/api/client";
 import { useAccounts } from "@/lib/api/accounts";
 import { useLendSafety } from "@/lib/api/liquidity";
@@ -35,6 +35,7 @@ export function AddTransactionForm() {
   const router = useRouter();
   const sp = useSearchParams();
   const create = useCreateTransaction();
+  const createCardSettlement = useCreateCardSettlement();
 
   const [amountPaise, setAmountPaise] = useState<number | null>(null);
   const [flowType, setFlowType] = useState<FlowType>("spend");
@@ -48,6 +49,7 @@ export function AddTransactionForm() {
   const [expectedReturnDate, setExpectedReturnDate] = useState<string>("");
   const [reminderOptIn, setReminderOptIn] = useState<boolean>(false);
   const [debtAccountId, setDebtAccountId] = useState<string | null>(null);
+  const [cardAccountId, setCardAccountId] = useState<string | null>(null);
   const [acceptUnderpayment, setAcceptUnderpayment] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [toastOpen, setToastOpen] = useState(false);
@@ -116,6 +118,39 @@ export function AddTransactionForm() {
       setError("Pick the loan you're paying down (or change the flow type).");
       return;
     }
+    if (flowType === "card_settlement") {
+      if (!cardAccountId) {
+        setError("Pick the credit card you're paying.");
+        return;
+      }
+      if (cardAccountId === accountId) {
+        setError("Pay-from and card must be different accounts.");
+        return;
+      }
+      try {
+        await createCardSettlement.mutateAsync({
+          fromAccountId: accountId,
+          toCardAccountId: cardAccountId,
+          amountPaise,
+          valueDate,
+          ...(description ? { description } : {}),
+          ...(acceptUnderpayment ? { acceptUnderpayment: true } : {}),
+        });
+        if (typeof window !== "undefined") {
+          window.localStorage.setItem(LAST_ACCOUNT, accountId);
+          window.localStorage.setItem(LAST_FLOW, flowType);
+        }
+        setToastOpen(true);
+        if (options.resetAndStay) {
+          clearForReuse();
+        } else {
+          router.push(`/accounts/${accountId}`);
+        }
+      } catch (e) {
+        setError(e instanceof ApiClientError ? e.message : "Failed to save");
+      }
+      return;
+    }
     try {
       await create.mutateAsync({
         valueDate,
@@ -138,9 +173,6 @@ export function AddTransactionForm() {
           : {}),
         ...(flowType === "debt_repayment" && debtAccountId
           ? { debtAccountId }
-          : {}),
-        ...(flowType === "card_settlement" && acceptUnderpayment
-          ? { acceptUnderpayment: true }
           : {}),
       } as Parameters<typeof create.mutateAsync>[0]);
       if (typeof window !== "undefined") {
@@ -192,7 +224,23 @@ export function AddTransactionForm() {
           </Stack>
         )}
       </Stack>
-      <AccountPicker value={accountId} onChange={setAccountId} required />
+      <AccountPicker
+        value={accountId}
+        onChange={setAccountId}
+        required
+        {...(flowType === "card_settlement"
+          ? { label: "Pay from", filter: (a) => a.kind !== "credit_card" }
+          : {})}
+      />
+      {flowType === "card_settlement" && (
+        <AccountPicker
+          value={cardAccountId}
+          onChange={setCardAccountId}
+          label="Pay to card"
+          required
+          filter={(a) => a.kind === "credit_card"}
+        />
+      )}
       <CounterpartyPicker value={counterpartyId} onChange={pickCounterparty} />
       <CategoryPicker value={categoryId} onChange={setCategoryId} flowType={flowType} />
       {flowType === "debt_repayment" && loanAccounts.length > 0 && (
@@ -293,13 +341,13 @@ export function AddTransactionForm() {
         onChange={(e) => setDescription(e.target.value)}
       />
       <Stack direction="row" spacing={2}>
-        <Button type="submit" variant="contained" disabled={create.isPending}>
-          {create.isPending ? "Saving…" : "Save"}
+        <Button type="submit" variant="contained" disabled={create.isPending || createCardSettlement.isPending}>
+          {create.isPending || createCardSettlement.isPending ? "Saving…" : "Save"}
         </Button>
         <Button
           type="button"
           variant="outlined"
-          disabled={create.isPending}
+          disabled={create.isPending || createCardSettlement.isPending}
           onClick={(e) => submit(e, { resetAndStay: true })}
         >
           Save & add another
